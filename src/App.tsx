@@ -266,7 +266,7 @@ const LiveObservatory = () => {
 
 const MauritiusShowcase = () => {
   const images = [
-    { url: "https://images.unsplash.com/photo-1590247813693-5541d1c609ec", label: "Grand Baie", type: "Pittoresque Beach View" },
+    { url: "https://images.unsplash.com/photo-1590247813693-5541d1c609ec", label: "Grand Baie", type: "Pittoresque Beach View Mauritius" },
     { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Brabant", type: "Where Abolition of Slavery Began" },
     { url: "https://images.unsplash.com/photo-1544735716-e3ed28230f71", label: "Port Louis Waterfront", type: "Mauritius on the Move" },
     { url: "https://images.unsplash.com/photo-1552083375-1447ce886485", label: "Pointe d'Esny", type: "First Port of Mauritius Grand Port" },
@@ -430,7 +430,7 @@ const Landing = () => (
 
         <div className="relative">
            <div className="aspect-[4/5] bg-black border border-white/10 relative overflow-hidden group">
-              <img src="https://images.unsplash.com/photo-1543165737-142f1f0a6d5a?auto=format&fit=crop&q=80&w=2070" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[20s] ease-linear grayscale group-hover:grayscale-0" />
+              <img src="https://images.unsplash.com/photo-1544731612-de7f96afe55f?auto=format&fit=crop&q=80&w=2070" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[20s] ease-linear grayscale group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               
               <div className="absolute bottom-10 left-10 space-y-4">
