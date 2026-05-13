@@ -8,14 +8,22 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT) || 8080;
   
-  console.log(`App starting...`);
-  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-  console.log(`PORT environment variable: ${process.env.PORT}`);
-  console.log(`Selected PORT: ${PORT}`);
+  console.log(`AuraMetropolis Protocol starting...`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`System Port (from env): ${process.env.PORT}`);
+  console.log(`Active Port: ${PORT}`);
+  console.log(`Running in directory: ${process.cwd()}`);
+  console.log(`Bundle directory (__dirname): ${__dirname}`);
 
   app.use(express.json());
+
+  // Request Logging
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+  });
 
   // Gemini Setup with Fallback
   const GEMINI_KEYS = [
@@ -76,10 +84,22 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+  // Serve from the directory where the bundle is located
+    const distPath = path.resolve(__dirname);
+    const indexPath = path.join(distPath, 'index.html');
+    
+    console.log(`Serving static assets from: ${distPath}`);
+    console.log(`Index file path: ${indexPath}`);
+    
+    app.use(express.static(distPath, { index: false }));
+    
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(indexPath, (err) => {
+        if (err) {
+          console.error(`Failed to serve index.html from ${indexPath}:`, err);
+          res.status(404).send("Metropolis Shell Mismatch: index.html not found in distribution node.");
+        }
+      });
     });
   }
 

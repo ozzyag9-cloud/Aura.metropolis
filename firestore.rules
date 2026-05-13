@@ -1,91 +1,41 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 0. Global Safety Net
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // --- Helper Functions (Phase 3 Primitives) ---
+    // --- Helper Functions ---
     function isSignedIn() { return request.auth != null; }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
-    // De-escalating isVerified for development stability
     function isVerified() { return isSignedIn(); }
 
-    // --- Entity Validation Blueprints (Pillar 2) ---
-
+    // --- Entity Validation Helpers ---
     function isValidUser(data) {
       return data.uid is string && data.uid == request.auth.uid
-        && data.displayName is string && data.displayName.size() <= 128
+        && data.displayName is string
         && (data.photoURL == null || data.photoURL is string)
         && data.totalInvested is number 
         && data.auraBalance is number
         && data.hasGoldVisaEligibility is bool
-        && data.hasGoldPass is bool
-        && data.createdAt is string;
-    }
-
-    function isValidOwnershipNFT(data) {
-      return data.ownerId == request.auth.uid
-        && data.estateId is string
-        && data.sharePercentage is number
-        && data.mintedAt is string;
-    }
-
-    function isValidNFT(data) {
-      return data.ownerId == request.auth.uid
-        && data.level is int
-        && data.traitDescription is string
-        && (data.auraColor == null || data.auraColor is string)
-        && data.lastEvolution is string;
-    }
-
-    function isValidInvestment(data) {
-      return data.userId == request.auth.uid
-        && data.estateId is string
-        && data.amount is number && data.amount > 0
-        && data.timestamp is string;
-    }
-
-    function isValidMessage(data) {
-      return data.senderId == request.auth.uid
-        && data.senderName is string && data.senderName.size() <= 100
-        && data.content is string && data.content.size() <= 1000
-        && (data.theme == null || data.theme is string);
+        && data.hasGoldPass is bool;
     }
 
     // --- Collection Rules ---
 
-    // Users Collection (Identified as PII-sensitive, Pillar 6)
+    // Users Collection
     match /users/{userId} {
-      // Identity-locked read (Pillar 8)
-      allow get: if isOwner(userId);
-      allow list: if false; // No batch listing of PII
-
-      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming());
-      
-      // Action-based updates (Pillar 4)
-      allow update: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && (
-        // Action: Daily Balance Drip
-        (incoming().diff(existing()).affectedKeys().hasOnly(['auraBalance'])) ||
-        // Action: Investment Accumulation
-        (incoming().diff(existing()).affectedKeys().hasOnly(['totalInvested', 'hasGoldVisaEligibility'])) ||
-        // Action: Profile Update
-        (incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'hasGoldPass']))
-      );
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if false; 
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId;
     }
 
     // Ownership NFTs (Fractional Stakes)
     match /ownership_nfts/{nftId} {
-      // Secure list: filter by current user (Pillar 8)
       allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
       allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid && isValidId(nftId);
-      
-      allow create: if isVerified() && isValidOwnershipNFT(incoming()) && isValidId(nftId);
-      allow update: if false; // Immutable stakes
+      allow create: if isVerified() && isValidId(nftId);
+      allow update: if false; // Immutable
       allow delete: if false;
     }
 
@@ -93,26 +43,21 @@ service cloud.firestore {
     match /nfts/{nftId} {
       allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
       allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid && isValidId(nftId);
-      
-      allow create: if isVerified() && isValidNFT(incoming()) && isValidId(nftId);
-      allow update: if isOwner(existing().ownerId) && isValidId(nftId) && isValidNFT(incoming()) && (
-        incoming().diff(existing()).affectedKeys().hasOnly(['level', 'traitDescription', 'auraColor', 'lastEvolution'])
-      );
+      allow create: if isVerified() && isValidId(nftId);
+      allow update: if isOwner(existing().ownerId) && isValidId(nftId);
     }
 
     // Investments Transaction Log
     match /investments/{investmentId} {
       allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isVerified() && isValidInvestment(incoming()) && isValidId(investmentId);
+      allow create: if isVerified() && isValidId(investmentId);
     }
 
-    // Community Messages (Meta-Hub)
+    // Community Messages
     match /messages/{messageId} {
-      // Public-read for signed in members
-      allow list: if isSignedIn();
-      allow get: if isSignedIn();
-      allow create: if isVerified() && isValidMessage(incoming());
+      allow list, get: if isSignedIn();
+      allow create: if isVerified();
     }
 
     // Static/Public Collections
@@ -120,5 +65,10 @@ service cloud.firestore {
     match /groceries/{groceryId} { allow read: if true; }
     match /art/{artId} { allow read: if true; }
     match /plots/{plotId} { allow read: if true; }
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

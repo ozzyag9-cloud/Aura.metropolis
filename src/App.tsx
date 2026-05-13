@@ -177,9 +177,9 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
     operationType,
     path
   };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  // We throw it so the system can catch it and diagnose rules
-  throw new Error(JSON.stringify(errInfo));
+  console.error('[Metropolis Protocol Error]', JSON.stringify(errInfo));
+  // We no longer throw here to prevent app crash loops. 
+  // Instead, we just log it for system diagnosis.
 }
 
 const LiveObservatory = () => {

@@ -24,10 +24,11 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Expose the application port
-EXPOSE 3000
+EXPOSE 8080
 
 # Set environment to production
 ENV NODE_ENV=production
+ENV PORT=8080
 
 # Start the application
 CMD ["npm", "start"]
