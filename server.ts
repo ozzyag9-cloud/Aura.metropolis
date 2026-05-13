@@ -8,7 +8,7 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 8080;
+  const PORT = Number(process.env.PORT) || 3000;
   
   console.log(`AuraMetropolis Protocol starting...`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -85,18 +85,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
   // Serve from the directory where the bundle is located
-    const distPath = path.resolve(__dirname);
+    const distPath = path.join(process.cwd(), 'dist');
     const indexPath = path.join(distPath, 'index.html');
     
-    console.log(`Serving static assets from: ${distPath}`);
-    console.log(`Index file path: ${indexPath}`);
+    console.log(`Metropolis Production Mode Active`);
+    console.log(`Asset Root: ${distPath}`);
+    console.log(`Index Target: ${indexPath}`);
     
-    app.use(express.static(distPath, { index: false }));
+    app.use(express.static(distPath));
     
     app.get('*', (req, res) => {
       res.sendFile(indexPath, (err) => {
         if (err) {
-          console.error(`Failed to serve index.html from ${indexPath}:`, err);
+          console.error(`DIST_SERVICE_FAILURE:`, err);
           res.status(404).send("Metropolis Shell Mismatch: index.html not found in distribution node.");
         }
       });

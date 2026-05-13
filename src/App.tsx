@@ -92,44 +92,50 @@ const MAURITIUS_CENTER = { lat: -20.3484, lng: 57.5522 };
 const VILLAS = [
   { 
     id: 'oa-1', 
-    name: "Oasis North Villa", 
-    type: "Residential", 
-    price: 1200000, 
+    name: "Metropolis North Sanctuary", 
+    type: "Residential Node", 
+    price: 1250000, 
     location: "Grand Baie", 
     coords: { lat: -20.0101, lng: 57.5802 },
-    img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070',
-    desc: "A stunning contemporary villa with private beach access and metabolic garden nodes."
+    img: 'https://images.unsplash.com/photo-1589519160732-57fc498494f8?auto=format&fit=crop&q=80&w=2070',
+    desc: "A futuristic smart-villa integrated with the Aura Mesh, offering 100% renewable energy and high-speed satellite uplink."
   },
   { 
     id: 'az-2', 
-    name: "Azure Heights Penthouse", 
-    type: "Residential", 
-    price: 850000, 
-    location: "Tamarin", 
-    coords: { lat: -20.3200, lng: 57.3700 },
-    img: 'https://images.unsplash.com/photo-1554032067-ff703f8c8f00?auto=format&fit=crop&q=80&w=2070',
-    desc: "Breathtaking mountain views and automated climate control systems."
+    name: "Cybercity Corporate Tower", 
+    type: "Commercial Node", 
+    price: 4850000, 
+    location: "Ebène", 
+    coords: { lat: -20.2425, lng: 57.4883 },
+    img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070',
+    desc: "The heartbeat of Mauritian Fintech. A multi-tenant digital hub for global corporations and AI startups."
   },
   { 
     id: 'pl-1', 
-    name: "Port Louis Commercial Node", 
-    type: "Commercial", 
-    price: 2100000, 
+    name: "Royal Port Louis Waterfront", 
+    type: "Hospitality Node", 
+    price: 3100000, 
     location: "Port Louis", 
     coords: { lat: -20.1609, lng: 57.5050 },
     img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070',
-    desc: "Multi-tenant digital office space with high-speed uplink to the Metropolis Mesh."
+    desc: "A luxury hospitality asset at the center of the financial district, yielding high metabolic returns through business stays."
   },
   { 
     id: 'em-3', 
-    name: "Emerald Cove Estate", 
-    type: "Residential", 
-    price: 3400000, 
-    location: "Belle Mare", 
-    coords: { lat: -20.1900, lng: 57.7700 },
-    img: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=2070',
-    desc: "The pinnacle of Mauritian luxury, featuring 5 energy-positive suites and a 100m pool."
+    name: "Le Morne Sovereign Estate", 
+    type: "Exclusive Node", 
+    price: 8400000, 
+    location: "Le Morne", 
+    coords: { lat: -20.4500, lng: 57.3200 },
+    img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070',
+    desc: "Ultra-high-net-worth sanctuary at the foot of the historic Le Morne mountain. The pinnacle of Mauritian prestige."
   }
+];
+
+const ART_MARKET = [
+  { id: 'art-1', title: "Ethereal Dodo", artist: "Vaco Baissac (Inspired)", price: 4500, img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=2070", desc: "A vibrant tribute to the island's lost emblem, blending traditional colors with metabolic digital textures." },
+  { id: 'art-2', title: "Sugarcane Sunset", artist: "Contemporary Mauritian", price: 2800, img: "https://images.unsplash.com/photo-1518998053502-53cc83b9ceb1?auto=format&fit=crop&q=80&w=2070", desc: "Abstract representation of the vast sugarcane fields of the North during the golden hour." },
+  { id: 'art-3', title: "Metropolis Grid 01", artist: "Aura AI Artist", price: 1200, img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2070", desc: "Generative art mapping the metabolic flows of Ebène Cybercity's data infrastructure." }
 ];
 
 // --- Components ---
@@ -266,22 +272,22 @@ const LiveObservatory = () => {
 
 const MauritiusShowcase = () => {
   const images = [
-    { url: "https://images.unsplash.com/photo-1590247813693-5541d1c609ec", label: "Grand Baie", type: "Pittoresque Beach View Mauritius" },
-    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Brabant", type: "Where Abolition of Slavery Began" },
-    { url: "https://images.unsplash.com/photo-1544735716-e3ed28230f71", label: "Port Louis Waterfront", type: "Mauritius on the Move" },
-    { url: "https://images.unsplash.com/photo-1552083375-1447ce886485", label: "Pointe d'Esny", type: "First Port of Mauritius Grand Port" },
+    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne UNESCO Heritage", type: "Pristine Luxury & History" },
+    { url: "https://images.unsplash.com/photo-1544731612-de7f96afe55f", label: "Modern Ebène Cybercity", type: "Infrastructure for Innovation" },
+    { url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab", label: "Commercial Financial Hub", type: "Tier-1 Business District" },
+    { url: "https://images.unsplash.com/photo-1552083375-1447ce886485", label: "Grand Baie Yacht Club", type: "Lifestyle for Global Elites" },
   ];
 
   return (
     <section className="py-32">
-       <div className="flex justify-between items-end mb-16 px-8">
+       <div className="flex flex-col md:flex-row justify-between items-end mb-16 px-8 gap-8">
           <div>
-            <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Island Tapestry</h2>
-            <h3 className="text-5xl font-serif italic text-white leading-tight">Mauritius Landscape <br /> & Corporate Life</h3>
+            <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Sovereign Visuals</h2>
+            <h3 className="text-5xl font-serif italic text-white leading-tight">Mauritius: The Silicon <br /> Island of the South</h3>
           </div>
-          <div className="hidden lg:block max-w-sm text-right">
-             <p className="text-xs text-white/30 italic leading-relaxed">
-               "A synergy of sub-tropical tranquility and hyper-efficient digital infrastructure. The Metropolis is not just a place, but an state of being."
+          <div className="max-w-md text-right">
+             <p className="text-xs text-white/40 italic leading-relaxed">
+               "Strategically positioned between Africa and Asia, Mauritius offers more than just postcard views. It is a metabolic hub of high-speed connectivity, fiscal security, and unrivaled quality of life."
              </p>
           </div>
        </div>
@@ -293,7 +299,7 @@ const MauritiusShowcase = () => {
               whileHover={{ scale: 1.02 }}
               className="aspect-[3/4] relative overflow-hidden group aura-card border-white/5"
             >
-               <img src={img.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={img.label} />
+               <img src={img.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={img.label} referrerPolicy="no-referrer" />
                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
                <div className="absolute bottom-6 left-6">
                   <span className="text-[9px] text-gold font-bold uppercase tracking-widest mb-1 block">{img.type}</span>
@@ -308,6 +314,7 @@ const MauritiusShowcase = () => {
 
 const Navbar = ({ user, auraBalance }: { user: User | null, auraBalance: number }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAuthOptions, setShowAuthOptions] = useState(false);
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0B]/90 backdrop-blur-xl border-b border-white/10 h-16">
@@ -321,7 +328,7 @@ const Navbar = ({ user, auraBalance }: { user: User | null, auraBalance: number 
         <div className="hidden lg:flex items-center gap-8">
           <Link to="/metropolis" className="tracking-archive text-white/50 hover:text-white transition-colors">Sky Metropolis</Link>
           <Link to="/map" className="tracking-archive text-white/50 hover:text-white transition-colors">Sovereign Map</Link>
-          <Link to="/market" className="tracking-archive text-white/50 hover:text-white transition-colors">Market</Link>
+          <Link to="/market" className="tracking-archive text-white/50 hover:text-white transition-colors">Art Market</Link>
           <Link to="/grocery" className="tracking-archive text-white/50 hover:text-white transition-colors">Grocery</Link>
           <Link to="/media" className="tracking-archive text-white/50 hover:text-white transition-colors">Media</Link>
           <Link to="/citadel" className="tracking-archive text-white/50 hover:text-white transition-colors">The Citadel</Link>
@@ -349,12 +356,35 @@ const Navbar = ({ user, auraBalance }: { user: User | null, auraBalance: number 
               </button>
             </div>
           ) : (
-            <button 
-              onClick={signInWithGoogle}
-              className="px-6 py-2 border border-gold/30 rounded-none text-[10px] tracking-widest text-gold hover:bg-gold hover:text-black transition-all font-bold uppercase"
-            >
-              Initialize Node
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowAuthOptions(!showAuthOptions)}
+                className="px-6 py-2 border border-gold/30 rounded-none text-[10px] tracking-widest text-gold hover:bg-gold hover:text-black transition-all font-bold uppercase"
+              >
+                Access Hub
+              </button>
+              
+              <AnimatePresence>
+                {showAuthOptions && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-12 right-0 w-64 bg-[#0A0A0B] border border-white/10 p-4 shadow-2xl flex flex-col gap-2"
+                  >
+                    <button onClick={signInWithGoogle} className="w-full py-3 bg-white/5 hover:bg-white/10 text-white text-[9px] uppercase tracking-widest font-bold flex items-center gap-3 px-4 border border-white/5">
+                      <Globe className="w-3 h-3 text-gold" /> Google / Email
+                    </button>
+                    <button onClick={() => alert('Web3 Mail initialization...')} className="w-full py-3 bg-white/5 hover:bg-white/10 text-white text-[9px] uppercase tracking-widest font-bold flex items-center gap-3 px-4 border border-white/5">
+                      <MessageCircle className="w-3 h-3 text-gold" /> Web3 Mail (EtherMail)
+                    </button>
+                    <button onClick={() => alert('Wallet Connect requested...')} className="w-full py-3 bg-gold text-black text-[9px] uppercase tracking-widest font-bold flex items-center gap-3 px-4 border border-gold">
+                      <Wallet className="w-3 h-3" /> Connect Wallet
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
         </div>
 
@@ -402,73 +432,90 @@ const Landing = () => (
         >
           <div className="flex items-center gap-4 mb-12">
             <div className="h-[1px] w-12 bg-gold/50" />
-            <span className="text-[10px] tracking-[0.5em] text-gold uppercase font-bold">2026 Sovereign Protocol</span>
+            <span className="text-[10px] tracking-[0.5em] text-gold uppercase font-bold">Aura Metropolis Protocol</span>
           </div>
           
-          <h1 className="text-7xl md:text-[8rem] font-serif italic mb-10 leading-[0.85] text-white tracking-tighter">
-            Digital <br />
-            <span className="text-gold not-italic uppercase font-bold text-6xl md:text-7xl tracking-widest block mt-4">Safe Haven</span>
+          <h1 className="text-7xl md:text-[7rem] font-serif italic mb-10 leading-[0.85] text-white tracking-tighter">
+            Mauritius <br />
+            <span className="text-gold not-italic uppercase font-bold text-6xl md:text-7xl tracking-widest block mt-4">Metropolis</span>
           </h1>
 
           <div className="max-w-xl space-y-8 mb-16">
             <p className="text-xl text-white/60 leading-relaxed font-light italic">
-              "The 2026 Golden Visa introduces a 5-day fast-track residency for global leaders in AI, Biotech, and Fintech. Secure your future in a nation with no military overhead and absolute fiscal neutrality."
+              "The 2026 Golden Visa introduces a 5-day fast-track residency for global leaders. Aura Metropolis is a multi-platform ecosystem enabling fractional property ownership, secure grocery provision, elite art curation, and real-time city governance."
             </p>
           </div>
 
           <div className="flex flex-wrap gap-8 items-center pt-8 border-t border-white/5">
             <Link to="/metropolis" className="group bg-gold text-black px-12 py-6 font-bold text-xs uppercase tracking-[0.4em] hover:bg-gold-hover transition-all flex items-center gap-4">
-              Initialize Stake
+              Connect to Mesh
               <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </Link>
             <div className="flex flex-col">
-              <span className="text-[10px] text-white/20 uppercase font-bold tracking-widest">Global Ranking</span>
-              <span className="text-xl font-serif text-white">#1 <span className="text-gold/50 text-xs italic">Ease of Business (Africa)</span></span>
+              <span className="text-[10px] text-white/20 uppercase font-bold tracking-widest">Platform Utility</span>
+              <span className="text-xl font-serif text-white">4 Main Nodes <span className="text-gold/50 text-xs italic">Property, Art, Food, Citizenship</span></span>
             </div>
           </div>
         </motion.div>
 
         <div className="relative">
            <div className="aspect-[4/5] bg-black border border-white/10 relative overflow-hidden group">
-              <img src="https://images.unsplash.com/photo-1544731612-de7f96afe55f?auto=format&fit=crop&q=80&w=2070" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[20s] ease-linear grayscale group-hover:grayscale-0" />
+              <img src="https://images.unsplash.com/photo-1544731612-de7f96afe55f?auto=format&fit=crop&q=80&w=2070" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[20s] ease-linear grayscale group-hover:grayscale-0" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               
               <div className="absolute bottom-10 left-10 space-y-4">
                  <div className="flex gap-4">
-                   <div className="px-4 py-2 bg-black/80 backdrop-blur-md border border-white/10 text-white font-mono text-[10px] uppercase">Status: 5-Day Fast Track</div>
-                   <div className="px-4 py-2 bg-gold text-black font-bold text-[10px] uppercase">15% Flat Tax</div>
+                   <div className="px-4 py-2 bg-black/80 backdrop-blur-md border border-white/10 text-white font-mono text-[10px] uppercase">Corporate Status: Hub of Africa</div>
+                   <div className="px-4 py-2 bg-gold text-black font-bold text-[10px] uppercase">Investor Safe Haven</div>
                  </div>
-                 <h2 className="text-3xl font-serif italic text-white">Legislative Sanctuary</h2>
+                 <h2 className="text-3xl font-serif italic text-white">Ebène Cybercity Axis</h2>
+                 <p className="text-[10px] text-white/40 italic max-w-xs uppercase tracking-widest">Representing the pinnacle of digital infrastructure in the Southern hemisphere.</p>
               </div>
            </div>
         </div>
+      </div>
+
+      {/* Functionality Explanation */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-32">
+        {[
+          { icon: Building2, title: "Sovereign Estates", desc: "Fractionalize high-value Mauritian real estate into liquid NFTs. Own a piece of paradise for as little as $5K." },
+          { icon: ShoppingBag, title: "Art Marketplace", desc: "A curated digital gallery of contemporary Mauritian fine art, sculptures, and digital metabolic assets." },
+          { icon: ShoppingCart, title: "Groceries Node", desc: "On-mesh provision of premium local and international goods, secured by Citadel logistics." },
+          { icon: Crown, title: "Citadel Citizenship", desc: "Unlock the 2026 Golden Visa through cumulative mesh investment. 5-day residency fast-track." }
+        ].map((feat, idx) => (
+          <div key={idx} className="aura-card p-8 bg-[#0A0A0B] border-white/5 flex flex-col gap-6 group hover:border-gold/20 transition-all">
+            <feat.icon className="w-8 h-8 text-gold opacity-50 group-hover:opacity-100 transition-opacity" />
+            <h4 className="text-lg font-serif italic text-white">{feat.title}</h4>
+            <p className="text-xs text-white/40 leading-relaxed uppercase tracking-widest">{feat.desc}</p>
+          </div>
+        ))}
       </div>
 
       {/* Visa Tiers & Benefits */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-32">
         <div className="aura-card p-12 bg-[#0A0A0B] border-gold/20">
           <Crown className="w-10 h-10 text-gold mb-8" />
-          <h3 className="text-3xl font-serif italic text-white mb-6">The 2026 Golden Visa</h3>
+          <h3 className="text-3xl font-serif italic text-white mb-6">The 2026 Residency Protocol</h3>
           <ul className="space-y-6">
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-gold rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">US$1.0M Allocation</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">Investment must be cleared within 12 months.</span>
+                <span className="text-white font-bold block mb-1">Golden Visa Admission (US$1.0M)</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">Achieve high-net-worth status through property, art, or direct treasury allocation.</span>
               </div>
             </li>
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-gold rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">Target Sectors</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">AI, Fintech, Biotechnology, Renewable Energy, & Global Treasury.</span>
+                <span className="text-white font-bold block mb-1">Standard Residency ($375K)</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">Entry-level mesh acquisition for long-term sustainable living.</span>
               </div>
             </li>
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-gold rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">Family Mobility</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">Simultaneous residency for immediate family and dependents.</span>
+                <span className="text-white font-bold block mb-1">Metabolic Tax Status</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">15% Flat Corporate Tax, 0% Inheritance Tax, 100% Repatriation.</span>
               </div>
             </li>
           </ul>
@@ -476,27 +523,27 @@ const Landing = () => (
 
         <div className="aura-card p-12 bg-[#0A0A0B] border-white/10">
           <TrendingUp className="w-10 h-10 text-gold mb-8" />
-          <h3 className="text-3xl font-serif italic text-white mb-6">Fiscal Architecture</h3>
+          <h3 className="text-3xl font-serif italic text-white mb-6">Aura Tokenomics</h3>
           <ul className="space-y-6">
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-white/20 rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">0% Inheritance Tax</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">Preserve wealth across generations without capital seizure.</span>
+                <span className="text-white font-bold block mb-1">Total Supply: 1,000,000,000 AURA</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">Fixed supply protocol ensuring scarcity and value retention.</span>
               </div>
             </li>
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-white/20 rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">15% Flat Corporate Tax</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">Simplified fiscal logic for operational business entities.</span>
+                <span className="text-white font-bold block mb-1">80% Property Collateralized</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">Token value is anchored to the prime real-estate index of Mauritius.</span>
               </div>
             </li>
             <li className="flex gap-4">
               <div className="w-1.5 h-1.5 bg-white/20 rounded-full mt-2" />
               <div>
-                <span className="text-white font-bold block mb-1">Standard Residency</span>
-                <span className="text-white/40 text-xs uppercase tracking-widest">Available at $375,000 for standard real-estate acquisition.</span>
+                <span className="text-white font-bold block mb-1">Metabolic Deflation</span>
+                <span className="text-white/40 text-xs uppercase tracking-widest">2% transaction fee burned on every mesh exchange (Art/Grocery/Land).</span>
               </div>
             </li>
           </ul>
@@ -535,6 +582,35 @@ const Landing = () => (
       </div>
 
       <MauritiusShowcase />
+
+      {/* Visual Context Summary */}
+      <div className="mb-32 p-12 bg-white/2 border border-white/5 aura-card">
+         <h4 className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold mb-8 italic flex items-center gap-2">
+           <Zap className="w-3 h-3" /> Photographic Narratives for Global Investors
+         </h4>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+               <h5 className="text-white font-serif italic mb-4">Metropolitan Infrastructure & Prestige</h5>
+               <p className="text-xs text-white/50 leading-relaxed italic">
+                 The visuals across Aura Metropolis are carefully selected to demonstrate the dual nature of Mauritius. 
+                 The towering glass structures of **Ebène Cybercity** represent a stable, high-tech financial district 
+                 comparable to Singapore or Dubai. Simultaneously, the **UNESCO heritage of Le Morne Brabant** 
+                 communicates an unshakeable legacy and the island's unique position as a sanctuary of both 
+                 history and progress. For the investor, these represent **Asset Stability** and **Cultural Capital**.
+               </p>
+            </div>
+            <div>
+               <h5 className="text-white font-serif italic mb-4">Luxury Lifestyle & Fiscal Security</h5>
+               <p className="text-xs text-white/50 leading-relaxed italic">
+                 Images of the **Grand Baie coastline** and **elite art pieces** serve as proxies for the high-end 
+                 lifestyle utility available to Sovereign Citizens. The art marketplace items—ranging from 
+                 traditional island motifs to abstract digital renders—signal a market that is mature, 
+                 diversified, and ready for blockchain-backed asset appreciation. This is the **Metropolis Promise**: 
+                 Total integration of lifestyle and ledger.
+               </p>
+            </div>
+         </div>
+      </div>
 
       <div className="mb-32">
          <div className="mb-16">
@@ -974,32 +1050,25 @@ const Metropolis = ({ user, profile, auraBalance }: { user: User | null, profile
 };
 
 const Estates = () => {
-  const [filter, setFilter] = useState<'all' | 'prospect' | 'acquired'>('all');
+  const [filter, setFilter] = useState<'all' | 'Residential Node' | 'Hospitality Node' | 'Commercial Node' | 'Exclusive Node'>('all');
   
-  const estates = [
-    { id: 'v1', name: "Oasis North Villa", type: "Residential", price: 1200000, adminFee: 60000, fund: 85, location: "Grand Baie", status: "prospect", img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v2', name: "Azure Heights Penthouse", type: "Residential", price: 850000, adminFee: 42500, fund: 100, location: "Tamarin", status: "acquired", img: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fcd1?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'c1', name: "Port Louis Commercial Node", type: "Commercial", price: 2100000, adminFee: 105000, fund: 100, location: "Port Louis", status: "acquired", img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v3', name: "Emerald Cove Estate", type: "Residential", price: 3400000, adminFee: 170000, fund: 12, location: "Belle Mare", status: "prospect", img: 'https://images.unsplash.com/photo-1552083375-1447ce886485?auto=format&fit=crop&q=80&w=2070' },
-  ];
-
-  const filtered = estates.filter(e => filter === 'all' || e.status === filter);
+  const filtered = VILLAS.filter(v => filter === 'all' || v.type === filter);
 
   return (
     <div className="pt-32 pb-20 max-w-7xl mx-auto px-8">
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
         <div>
           <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Sovereign Portfolio</h2>
-          <h3 className="text-5xl font-serif italic text-white">Distributed Catalog</h3>
+          <h3 className="text-5xl font-serif italic text-white">Metropolitan Assets</h3>
         </div>
-        <div className="flex bg-white/5 border border-white/10 p-1">
-           {['all', 'prospect', 'acquired'].map((f) => (
+        <div className="flex flex-wrap bg-white/5 border border-white/10 p-1">
+           {['all', 'Residential Node', 'Hospitality Node', 'Commercial Node', 'Exclusive Node'].map((f) => (
              <button 
               key={f}
               onClick={() => setFilter(f as any)}
-              className={`px-6 py-2 text-[10px] uppercase tracking-widest transition-all ${filter === f ? 'bg-gold text-black font-bold' : 'text-white/30 hover:text-white'}`}
+              className={`px-4 py-2 text-[8px] uppercase tracking-widest transition-all ${filter === f ? 'bg-gold text-black font-bold' : 'text-white/30 hover:text-white'}`}
              >
-               {f}
+               {f.replace(' Node', '')}
              </button>
            ))}
         </div>
@@ -1007,52 +1076,100 @@ const Estates = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {filtered.map((e) => (
-          <div key={e.id} className="aura-card overflow-hidden group border border-white/5 bg-[#0A0A0B]">
+          <div key={e.id} className="aura-card overflow-hidden group border border-white/5 bg-[#0A0A0B] flex flex-col h-full">
             <div className="h-64 overflow-hidden relative">
-              <img src={e.img} alt={e.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0" />
+              <img src={e.img} alt={e.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0" referrerPolicy="no-referrer" />
               <div className="absolute top-4 left-4 flex gap-2">
                  <div className="bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-white/50">{e.location}</div>
-                 <div className={`px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${e.status === 'acquired' ? 'bg-green-500 text-black' : 'bg-gold text-black'}`}>
-                   {e.status}
+                 <div className="bg-gold text-black px-3 py-1 text-[9px] font-bold uppercase tracking-widest">
+                   Live Asset
                  </div>
               </div>
             </div>
-            <div className="p-10">
+            <div className="p-10 flex-1 flex flex-col">
               <div className="flex justify-between items-start mb-6">
                 <div>
                    <h3 className="text-xl font-serif italic text-white mb-1">{e.name}</h3>
-                   <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold">{e.type} Node</span>
+                   <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold">{e.type}</span>
                 </div>
                 <div className="text-right">
                    <div className="text-gold font-mono text-lg font-bold">${(e.price / 1000000).toFixed(1)}M</div>
-                   <div className="text-[9px] text-white/20 uppercase font-mono">Incl. 5% Fees</div>
+                   <div className="text-[9px] text-white/20 uppercase font-mono tracking-tighter italic">Secured Node</div>
                 </div>
               </div>
+
+              <p className="text-xs text-white/40 italic leading-relaxed mb-8 flex-1">"{e.desc}"</p>
 
               <div className="space-y-6 mb-10">
                 <div className="flex justify-between items-end border-b border-white/5 pb-2">
                   <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Protocol Funding</span>
-                  <span className="text-xs font-mono text-gold">{e.fund}%</span>
+                  <span className="text-xs font-mono text-gold">100%</span>
                 </div>
                 <div className="h-[1px] bg-white/5 overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${e.fund}%` }}
+                    animate={{ width: `100%` }}
                     transition={{ duration: 2 }}
-                    className={`h-full ${e.fund === 100 ? 'bg-green-500' : 'bg-gold'}`}
+                    className="h-full bg-green-500"
                   />
                 </div>
               </div>
 
-              {e.status === 'prospect' ? (
-                <button className="w-full py-4 bg-gold text-black font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-gold-hover transition-all">
-                  Initialize Acquisition
-                </button>
-              ) : (
-                <Link to={e.type === 'Commercial' ? '/media' : '/metropolis'} className="w-full py-4 border border-green-500/30 text-green-500 font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-green-500 hover:text-black transition-all text-center block">
-                  Access Node Services
-                </Link>
-              )}
+              <Link to={`/villa/${e.id}`} className="w-full py-4 bg-gold text-black font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-gold-hover transition-all text-center block">
+                Initialize Asset View
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const GroceryStore = () => {
+  const [cart, setCart] = useState<any[]>([]);
+  const items = [
+    { id: 1, name: 'Sovereign Island Fruit Box', price: 120, category: 'Fresh', img: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=2070' },
+    { id: 2, name: 'Cybercity Espresso Reserve', price: 85, category: 'Provision', img: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80&w=2070' },
+    { id: 3, name: 'Metropolis Spice Index', price: 45, category: 'Vault', img: 'https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&q=80&w=2070' },
+    { id: 4, name: 'Citadel Honey (Grade A)', price: 210, category: 'Elite', img: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&q=80&w=2070' }
+  ];
+
+  const total = cart.reduce((acc, curr) => acc + curr.price, 0);
+
+  return (
+    <div className="pt-32 pb-20 max-w-7xl mx-auto px-8 min-h-screen">
+      <div className="flex justify-between items-end mb-16 px-4">
+        <div>
+          <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Citadel Logistics</h2>
+          <h3 className="text-5xl font-serif italic text-white leading-tight">Metropolis <br /> Provisions Node</h3>
+        </div>
+        <div className="flex items-center gap-6">
+           <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold">MESH_BALANCE</span>
+              <div className="text-3xl font-serif text-gold">${total}</div>
+           </div>
+           <button className="w-16 h-16 bg-gold text-black flex items-center justify-center relative shadow-[0_0_20px_rgba(197,160,89,0.3)]">
+              <ShoppingCart className="w-6 h-6" />
+              {cart.length > 0 && <span className="absolute top-3 right-3 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-sm font-bold">{cart.length}</span>}
+           </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {items.map(i => (
+          <div key={i.id} className="aura-card p-8 bg-[#0A0A0B] border-white/5 flex flex-col h-full group hover:border-gold/20 transition-all">
+            <div className="aspect-square mb-8 overflow-hidden relative">
+               <img src={i.img} alt={i.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[2s]" referrerPolicy="no-referrer" />
+               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all" />
+            </div>
+            <span className="text-[9px] text-gold font-bold uppercase tracking-widest mb-2 italic">Class: {i.category}</span>
+            <h4 className="text-xl font-serif italic text-white mb-6 flex-1">{i.name}</h4>
+            <div className="flex justify-between items-center pt-6 border-t border-white/5">
+              <span className="text-lg font-mono text-white/60">${i.price}</span>
+              <button onClick={() => setCart([...cart, i])} className="p-3 border border-white/10 hover:bg-gold hover:text-black transition-all">
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
           </div>
         ))}
@@ -1062,35 +1179,70 @@ const Estates = () => {
 };
 
 const Roadmap = () => (
-  <div className="pt-32 pb-20 max-w-4xl mx-auto px-8">
+  <div className="pt-32 pb-20 max-w-5xl mx-auto px-8">
     <div className="text-center mb-24">
        <h2 className="text-[11px] uppercase tracking-[0.4em] font-bold text-gold mb-4">The Evolution Timeline</h2>
-       <h3 className="text-6xl font-serif italic text-white flex items-center justify-center gap-4">Archive & Vision</h3>
+       <h3 className="text-6xl font-serif italic text-white flex items-center justify-center gap-4">Drafting the Future</h3>
     </div>
     
-    <div className="space-y-20 relative">
+    <div className="space-y-20 relative px-4 md:px-0">
       <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-white/5 ml-4 hidden md:block" />
       {[
-        { phase: "Phase 1: Foundation", date: "Q2 2026", label: "Archive Protocol", items: ["AuraToken Deployment", "NFT Genesis Engine", "First 3 Estate Offerings"] },
-        { phase: "Phase 2: Expansion", date: "Q4 2026", label: "Sky Node Scaling", items: ["Custom Business Creation", "Estate Governance DAO", "Secondary NFT Marketplace"] },
-        { phase: "Phase 3: Residency", date: "Q2 2027", label: "Sovereign Link", items: ["Direct Mauritius Visa Integration", "Meta-Estate Construction", "Cross-Chain Liquidity Pools"] }
+        { 
+          phase: "Phase 1: Genesis protocol", 
+          date: "Q2 2026", 
+          label: "Metropolis Foundation", 
+          items: [
+            "AURA Token TGE on Mauritius-aligned liquidity pools.",
+            "Fractional Estate Node engine goes live for initial Grand Baie assets.",
+            "Citizen Dashboard v1 with metabolic data visualization.",
+            "Legal sandbox integration for 5-day visa fast-tracking."
+          ] 
+        },
+        { 
+          phase: "Phase 2: Mesh Expansion", 
+          date: "Q4 2026", 
+          label: "Sovereign Scalability", 
+          items: [
+            "Launch of the Art Marketplace with high-fidelity 3D NFT viewer.",
+            "Grocery & Provision node integration for direct mesh-to-door logistics.",
+            "Ebène Cybercity Corporate DAO for metabolic business governance.",
+            "Tier-1 banking bridge for seamless fiat-to-AURA conversion."
+          ] 
+        },
+        { 
+          phase: "Phase 3: Sovereign Autonomy", 
+          date: "Q2 2027", 
+          label: "The Eternal Mesh", 
+          items: [
+            "Full Golden Visa automation via the Citadel Axis.",
+            "Meta-Estate construction where virtual ownership influences physical ROI.",
+            "Global Metropolis Link: Onboarding other sovereign jurisdictions.",
+            "Sovereign AI Counselor for automated tax and portfolio optimization."
+          ] 
+        }
       ].map((p, i) => (
-        <div key={i} className="relative md:pl-20">
-          <div className="absolute left-0 top-0 w-8 h-8 rounded-sm bg-bg-panel border border-gold/30 flex items-center justify-center -translate-x-1/2 z-10 hidden md:flex">
-             <div className="w-1 h-1 bg-gold rounded-full" />
+        <div key={i} className="relative md:pl-24">
+          <div className="absolute left-0 top-0 w-8 h-8 rounded-sm bg-black border border-gold/60 flex items-center justify-center -translate-x-1/2 z-10 hidden md:flex shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+             <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
           </div>
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="aura-card p-12 bg-[#0A0A0B]"
+            className="aura-card p-12 bg-[#0A0A0B] border-white/5 hover:border-gold/20 transition-all"
           >
-            <span className="text-gold text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-4 block">{p.date} • {p.label}</span>
-            <h3 className="text-3xl font-serif italic mb-8 text-white">{p.phase}</h3>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex justify-between items-start mb-10 border-b border-white/5 pb-6">
+              <div>
+                <span className="text-gold text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 block">{p.date}</span>
+                <h3 className="text-3xl font-serif italic text-white">{p.phase}</h3>
+              </div>
+              <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest border border-white/10 px-3 py-1">{p.label}</span>
+            </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
               {p.items.map((item, ii) => (
-                <li key={ii} className="flex items-center gap-4 text-white/40 text-[11px] italic">
-                  <div className="w-1.5 h-[1px] bg-gold/50" />
+                <li key={ii} className="flex gap-4 items-start text-white/50 text-[11px] italic leading-relaxed">
+                  <div className="w-1.5 h-[1.5px] bg-gold mt-2 opacity-50" />
                   {item}
                 </li>
               ))}
@@ -1392,46 +1544,72 @@ const VillaDetails = () => {
   );
 };
 
-const GroceryStore = () => {
-  const [cart, setCart] = useState<any[]>([]);
-  const items = [
-    { id: 1, name: 'Artisan Island Fruit', price: 24, category: 'Fresh', img: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=2070' },
-    { id: 2, name: 'Premium Espresso Roast', price: 45, category: 'Pantry', img: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80&w=2070' },
-    { id: 3, name: 'Mauritian Spice Blend', price: 18, category: 'Spices', img: 'https://images.unsplash.com/photo-1532336414038-cf19250c5757?auto=format&fit=crop&q=80&w=2070' },
-    { id: 4, name: 'Golden Honey Reserve', price: 89, category: 'Elite', img: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&q=80&w=2070' }
-  ];
-
-  const total = cart.reduce((acc, curr) => acc + curr.price, 0);
-
+const ArtMarketplace = () => {
   return (
     <div className="pt-32 pb-20 max-w-7xl mx-auto px-8 min-h-screen">
-      <div className="flex justify-between items-end mb-16">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
         <div>
-          <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Metropolis Provisions</h2>
-          <h3 className="text-5xl font-serif italic text-white">Sovereign Grocery</h3>
+          <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Sovereign Curation</h2>
+          <h3 className="text-5xl font-serif italic text-white leading-tight">Mauritian Fine Art <br /> & Digital Assets</h3>
         </div>
-        <div className="flex items-center gap-6">
-           <div className="text-right">
-              <span className="text-[10px] text-white/30 uppercase tracking-[0.2em]">Total</span>
-              <div className="text-3xl font-serif text-gold">${total}</div>
-           </div>
-           <button className="w-16 h-16 bg-gold text-black flex items-center justify-center relative">
-              <ShoppingBag className="w-6 h-6" />
-              {cart.length > 0 && <span className="absolute top-3 right-3 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full">{cart.length}</span>}
-           </button>
+        <div className="max-w-xs text-right">
+           <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-2 italic">Aura Art Index: +12.4% ARR</p>
+           <div className="h-[1px] bg-gold/30 w-full" />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        {items.map(i => (
-          <div key={i.id} className="aura-card p-6 bg-[#0A0A0B]">
-            <img src={i.img} alt={i.name} className="w-full h-48 object-cover mb-6 grayscale hover:grayscale-0 transition-all" />
-            <h4 className="text-lg font-serif italic mb-4">{i.name}</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-gold font-mono">${i.price}</span>
-              <button onClick={() => setCart([...cart, i])} className="p-2 border border-white/10 hover:border-gold transition-all"><Plus className="w-4 h-4" /></button>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        {ART_MARKET.map((art) => (
+          <motion.div 
+            key={art.id} 
+            whileHover={{ y: -10 }}
+            className="aura-card overflow-hidden bg-[#0A0A0B] border-white/5 flex flex-col h-full"
+          >
+            <div className="aspect-square overflow-hidden relative group">
+              <img src={art.img} alt={art.title} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" referrerPolicy="no-referrer" />
+              <div className="absolute top-4 left-4">
+                 <div className="bg-black/80 backdrop-blur-md px-3 py-1 text-[9px] font-bold text-gold uppercase tracking-widest border border-gold/20">Authenticated</div>
+              </div>
             </div>
-          </div>
+            <div className="p-8 flex-1 flex flex-col">
+              <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] font-bold mb-2 italic">{art.artist}</span>
+              <h4 className="text-2xl font-serif italic text-white mb-4">{art.title}</h4>
+              <p className="text-xs text-white/40 mb-8 leading-relaxed italic">"{art.desc}"</p>
+              <div className="mt-auto pt-6 border-t border-white/5 flex justify-between items-center">
+                 <div className="flex flex-col">
+                    <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">ASKING PRICE</span>
+                    <span className="text-xl font-serif text-white">${art.price.toLocaleString()}</span>
+                 </div>
+                 <button className="px-6 py-2 bg-white text-black font-bold text-[9px] uppercase tracking-widest hover:bg-gold transition-colors">Place Bid</button>
+              </div>
+            </div>
+          </motion.div>
         ))}
+      </div>
+      
+      {/* Visual Context Summary */}
+      <div className="mt-32 p-12 bg-white/2 border border-white/5 aura-card">
+         <h4 className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold mb-8">Asset Visual Context Summary</h4>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+               <h5 className="text-white font-serif italic mb-4">Investment Landscape Visuals</h5>
+               <p className="text-xs text-white/40 leading-relaxed italic">
+                 The images displayed throughout the platform are curated to reflect the strategic and aesthetic value of Mauritius. 
+                 From the **UNESCO heritage site of Le Morne**, symbolizing deep historical rootedness and prestige, to the **cyber-punk efficiency of Ebène Cybercity**, 
+                 which showcases the island's readiness for high-frequency digital commerce. The vistas of **Grand Baie** represent the lifestyle 
+                 standard expected by global elites seeking both sanctuary and luxury.
+               </p>
+            </div>
+            <div>
+               <h5 className="text-white font-serif italic mb-4">Cultural & Asset Curation</h5>
+               <p className="text-xs text-white/40 leading-relaxed italic">
+                 The Art Marketplace features works that bridge the gap between traditional Mauritian motifs—like the **Vaco-inspired abstract Dodos**—and 
+                 **modern generative digital assets**. This combination signals a market that respects its heritage while aggressively 
+                 pioneering the future of digital-physical ownership (Phygital assets). 
+                 Each image serves as a visual proof-of-concept for the high-end, secure, and technologically advanced environment of the Aura Metropolis.
+               </p>
+            </div>
+         </div>
       </div>
     </div>
   );
