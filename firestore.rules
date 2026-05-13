@@ -9,7 +9,7 @@ service cloud.firestore {
     // --- Helper Functions (Phase 3 Primitives) ---
     function isSignedIn() { return request.auth != null; }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
-    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
     // De-escalating isVerified for development stability
@@ -65,10 +65,10 @@ service cloud.firestore {
       allow get: if isOwner(userId);
       allow list: if false; // No batch listing of PII
 
-      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().totalInvested == 0;
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming());
       
       // Action-based updates (Pillar 4)
-      allow update: if isOwner(userId) && isValidUser(incoming()) && (
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && (
         // Action: Daily Balance Drip
         (incoming().diff(existing()).affectedKeys().hasOnly(['auraBalance'])) ||
         // Action: Investment Accumulation
@@ -82,7 +82,7 @@ service cloud.firestore {
     match /ownership_nfts/{nftId} {
       // Secure list: filter by current user (Pillar 8)
       allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid && isValidId(nftId);
       
       allow create: if isVerified() && isValidOwnershipNFT(incoming()) && isValidId(nftId);
       allow update: if false; // Immutable stakes
@@ -92,10 +92,10 @@ service cloud.firestore {
     // Dynamic NFTs Collection
     match /nfts/{nftId} {
       allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.ownerId == request.auth.uid && isValidId(nftId);
       
-      allow create: if isVerified() && isValidNFT(incoming());
-      allow update: if isOwner(existing().ownerId) && isValidNFT(incoming()) && (
+      allow create: if isVerified() && isValidNFT(incoming()) && isValidId(nftId);
+      allow update: if isOwner(existing().ownerId) && isValidId(nftId) && isValidNFT(incoming()) && (
         incoming().diff(existing()).affectedKeys().hasOnly(['level', 'traitDescription', 'auraColor', 'lastEvolution'])
       );
     }

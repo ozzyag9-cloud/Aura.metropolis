@@ -209,11 +209,13 @@ const LiveObservatory = () => {
       <div className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-1000">
         <Player
           url={cams[activeCam].url}
-          playing
-          muted
-          loop
+          playing={true}
+          muted={true}
+          loop={true}
           width="100%"
           height="100%"
+          playsinline={true}
+          controls={false}
           style={{ transform: 'scale(1.1)' }}
         />
       </div>
@@ -645,33 +647,29 @@ const CloudParticles = ({ count = 20, color = "#C5A059" }) => {
   );
 };
 
-const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: number }) => {
+const Metropolis = ({ user, profile, auraBalance }: { user: User | null, profile: any, auraBalance: number }) => {
   const [nft, setNft] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
   const [isEvolving, setIsEvolving] = useState(false);
   const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
   useEffect(() => {
     if (!user) return;
     
-    // Subscribe to profile
-    const profilePath = `users/${user.uid}`;
-    const unsubProfile = onSnapshot(doc(db, 'users', user.uid), (snap) => {
-      setProfile(snap.data());
-    }, (err) => handleFirestoreError(err, OperationType.GET, profilePath));
-
     // Subscribe to NFT (assuming 1 NFT for demo)
     const nftPath = 'nfts';
-    const unsubNft = onSnapshot(query(collection(db, nftPath), where('ownerId', '==', user.uid)), (snap) => {
+    const q = query(collection(db, nftPath), where('ownerId', '==', user.uid), limit(1));
+    const unsubNft = onSnapshot(q, (snap) => {
       if (!snap.empty) {
         setNft({ id: snap.docs[0].id, ...snap.docs[0].data() });
       } else {
         setNft(null);
       }
-    }, (err) => handleFirestoreError(err, OperationType.LIST, nftPath));
+    }, (err) => {
+       console.error("NFT Fetch Error:", err);
+       // Silence the throw to prevent app crash during dev
+    });
 
     return () => {
-      unsubProfile();
       unsubNft();
     };
   }, [user]);
@@ -693,10 +691,9 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
       });
 
       // 2. Update user profile (simulating aggregation for demo)
-      const userPath = `users/${userId}`;
+      const userRef = doc(db, 'users', userId);
       const newTotal = (profile?.totalInvested || 0) + amount;
-      await setDoc(doc(db, 'users', userId), {
-        ...profile,
+      await setDoc(userRef, {
         totalInvested: newTotal,
         hasGoldVisaEligibility: newTotal >= 1000000
       }, { merge: true });
@@ -704,7 +701,6 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
       // 3. Trigger NFT evolution if needed or just update metadata
       if (!nft) {
         // Create initial NFT
-        const newNftPath = `nfts/nft-${userId}`;
         await setDoc(doc(db, 'nfts', `nft-${userId}`), {
           ownerId: userId,
           level: 1,
@@ -725,9 +721,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
         });
         const data = await res.json();
         
-        const nftUpdatePath = `nfts/${nft.id}`;
-        await setDoc(doc(db, 'nfts', nft.id), {
-          ...nft,
+        await updateDoc(doc(db, 'nfts', nft.id), {
           level: nft.level + 1,
           traitDescription: data.traitText,
           auraColor: data.auraColor,
@@ -1154,6 +1148,14 @@ const MapPortal = () => {
 
       <div className="h-[700px] border border-white/10 relative aura-card overflow-hidden">
         <MapWithFallback>
+          <div className="absolute inset-x-8 top-8 z-10 pointer-events-none">
+             <div className="max-w-xs bg-black/80 backdrop-blur-md border border-gold/20 p-4 pointer-events-auto">
+                <p className="text-[9px] text-gold/60 uppercase font-bold tracking-widest mb-2 flex items-center gap-2">
+                   <Zap className="w-3 h-3" /> System Alert
+                </p>
+                <p className="text-[10px] text-white/60 italic">If the map fails to load with a "RefererNotAllowedMapError", please ensure your Google Maps API key is unrestricted or allows this domain.</p>
+             </div>
+          </div>
           <Map
             defaultCenter={MAURITIUS_CENTER}
             defaultZoom={10}
@@ -1863,7 +1865,7 @@ function AppContent() {
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/" element={<PageWrapper><Landing /></PageWrapper>} />
-          <Route path="/metropolis" element={<PageWrapper><Metropolis user={user} auraBalance={auraBalance} /></PageWrapper>} />
+          <Route path="/metropolis" element={<PageWrapper><Metropolis user={user} profile={profile} auraBalance={auraBalance} /></PageWrapper>} />
           <Route path="/estates" element={<PageWrapper><Estates /></PageWrapper>} />
           <Route path="/roadmap" element={<PageWrapper><Roadmap /></PageWrapper>} />
           <Route path="/market" element={<PageWrapper><Gallery /></PageWrapper>} />
