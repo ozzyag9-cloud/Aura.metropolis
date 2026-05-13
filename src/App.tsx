@@ -98,17 +98,17 @@ const VILLAS = [
     location: "Grand Baie", 
     coords: { lat: -20.0101, lng: 57.5802 },
     img: 'https://images.unsplash.com/photo-1589519160732-57fc498494f8?auto=format&fit=crop&q=80&w=2070',
-    desc: "A futuristic smart-villa integrated with the Aura Mesh, offering 100% renewable energy and high-speed satellite uplink."
+    desc: "A futuristic smart-villa integrated with the Aura Mesh, offering 100% renewable energy and high-speed satellite uplink. Managed by the Citadel Logistics Node."
   },
   { 
     id: 'az-2', 
-    name: "Cybercity Corporate Tower", 
+    name: "Ebène Cybercity Tower", 
     type: "Commercial Node", 
     price: 4850000, 
     location: "Ebène", 
     coords: { lat: -20.2425, lng: 57.4883 },
-    img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070',
-    desc: "The heartbeat of Mauritian Fintech. A multi-tenant digital hub for global corporations and AI startups."
+    img: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&q=80&w=2070',
+    desc: "The heartbeat of Mauritian Fintech. A multi-tenant digital hub for global corporations and AI startups. High-yield commercial asset."
   },
   { 
     id: 'pl-1', 
@@ -117,8 +117,8 @@ const VILLAS = [
     price: 3100000, 
     location: "Port Louis", 
     coords: { lat: -20.1609, lng: 57.5050 },
-    img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070',
-    desc: "A luxury hospitality asset at the center of the financial district, yielding high metabolic returns through business stays."
+    img: 'https://images.unsplash.com/photo-1544731612-de7f96afe55f?auto=format&fit=crop&q=80&w=2070',
+    desc: "A luxury hospitality asset at the center of the financial district, yielding high metabolic returns through business stays and global conferencing."
   },
   { 
     id: 'em-3', 
@@ -127,15 +127,15 @@ const VILLAS = [
     price: 8400000, 
     location: "Le Morne", 
     coords: { lat: -20.4500, lng: 57.3200 },
-    img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070',
-    desc: "Ultra-high-net-worth sanctuary at the foot of the historic Le Morne mountain. The pinnacle of Mauritian prestige."
+    img: 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&q=80&w=2070',
+    desc: "Ultra-high-net-worth sanctuary at the foot of the historic Le Morne mountain. The pinnacle of Mauritian prestige and history."
   }
 ];
 
 const ART_MARKET = [
-  { id: 'art-1', title: "Ethereal Dodo", artist: "Vaco Baissac (Inspired)", price: 4500, img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=2070", desc: "A vibrant tribute to the island's lost emblem, blending traditional colors with metabolic digital textures." },
-  { id: 'art-2', title: "Sugarcane Sunset", artist: "Contemporary Mauritian", price: 2800, img: "https://images.unsplash.com/photo-1518998053502-53cc83b9ceb1?auto=format&fit=crop&q=80&w=2070", desc: "Abstract representation of the vast sugarcane fields of the North during the golden hour." },
-  { id: 'art-3', title: "Metropolis Grid 01", artist: "Aura AI Artist", price: 1200, img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2070", desc: "Generative art mapping the metabolic flows of Ebène Cybercity's data infrastructure." }
+  { id: 'art-1', title: "Ethereal Dodo", artist: "Inspired by Vaco", price: 4500, img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80&w=2070", desc: "A vibrant tribute to the island's lost emblem, blending traditional colors with metabolic digital textures. Featured at the Sapna Gallery." },
+  { id: 'art-2', title: "Sugarcane Sunset", artist: "Mauritian Collective", price: 2800, img: "https://images.unsplash.com/photo-1518998053502-53cc83b9ceb1?auto=format&fit=crop&q=80&w=2070", desc: "Abstract representation of the vast sugarcane fields of the North during the golden hour. A staple of Mauritian contemporary art." },
+  { id: 'art-3', title: "Metropolis Grid 01", artist: "Aura AI Artist", price: 1200, img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2070", desc: "Generative art mapping the metabolic flows of Ebène Cybercity's data infrastructure. Part of the Phygital asset series." }
 ];
 
 // --- Components ---
@@ -272,10 +272,10 @@ const LiveObservatory = () => {
 
 const MauritiusShowcase = () => {
   const images = [
-    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne UNESCO Heritage", type: "Pristine Luxury & History" },
-    { url: "https://images.unsplash.com/photo-1544731612-de7f96afe55f", label: "Modern Ebène Cybercity", type: "Infrastructure for Innovation" },
-    { url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab", label: "Commercial Financial Hub", type: "Tier-1 Business District" },
-    { url: "https://images.unsplash.com/photo-1552083375-1447ce886485", label: "Grand Baie Yacht Club", type: "Lifestyle for Global Elites" },
+    { url: "https://images.unsplash.com/photo-1534067783941-51c9c23eccfd", label: "Le Morne UNESCO Heritage", type: "Sanctuary of High Prestige" },
+    { url: "https://images.unsplash.com/photo-1514565131-fce0801e5785", label: "Ebène Cybercity by Night", type: "The Metabolic Financial Axis" },
+    { url: "https://images.unsplash.com/photo-1544731211-0903347fdaa4", label: "Port Louis Port Authority", type: "Global Logistics Hub" },
+    { url: "https://images.unsplash.com/photo-1552083375-1447ce886485", label: "Grand Baie Yacht Club", type: "Elite Lifestyle Node" },
   ];
 
   return (
@@ -441,8 +441,8 @@ const Landing = () => (
           </h1>
 
           <div className="max-w-xl space-y-8 mb-16">
-            <p className="text-xl text-white/60 leading-relaxed font-light italic">
-              "The 2026 Golden Visa introduces a 5-day fast-track residency for global leaders. Aura Metropolis is a multi-platform ecosystem enabling fractional property ownership, secure grocery provision, elite art curation, and real-time city governance."
+            <p className="text-xl text-white/60 leading-relaxed font-light italic border-l border-gold/30 pl-6">
+              "The 2026 Golden Visa introduces a 5-day fast-track residency for global leaders. Aura Metropolis is a multi-platform ecosystem enabling fractional property ownership, secure grocery provision, and elite art curation. Access the Mesh via standard Email, encrypted Web3 Mail (EtherMail), or direct Wallet Connection."
             </p>
           </div>
 
@@ -1196,7 +1196,8 @@ const Roadmap = () => (
             "AURA Token TGE on Mauritius-aligned liquidity pools.",
             "Fractional Estate Node engine goes live for initial Grand Baie assets.",
             "Citizen Dashboard v1 with metabolic data visualization.",
-            "Legal sandbox integration for 5-day visa fast-tracking."
+            "Legal sandbox integration for 5-day visa fast-tracking.",
+            "Web3 Auth & Wallet Connect deployment."
           ] 
         },
         { 
@@ -1207,7 +1208,8 @@ const Roadmap = () => (
             "Launch of the Art Marketplace with high-fidelity 3D NFT viewer.",
             "Grocery & Provision node integration for direct mesh-to-door logistics.",
             "Ebène Cybercity Corporate DAO for metabolic business governance.",
-            "Tier-1 banking bridge for seamless fiat-to-AURA conversion."
+            "Tier-1 banking bridge for seamless fiat-to-AURA conversion.",
+            "Introduction of the 'Dodo' governance token."
           ] 
         },
         { 
@@ -1218,7 +1220,8 @@ const Roadmap = () => (
             "Full Golden Visa automation via the Citadel Axis.",
             "Meta-Estate construction where virtual ownership influences physical ROI.",
             "Global Metropolis Link: Onboarding other sovereign jurisdictions.",
-            "Sovereign AI Counselor for automated tax and portfolio optimization."
+            "Sovereign AI Counselor for automated tax and portfolio optimization.",
+            "Metropolis decentralized cloud storage node launch."
           ] 
         }
       ].map((p, i) => (
@@ -1545,6 +1548,8 @@ const VillaDetails = () => {
 };
 
 const ArtMarketplace = () => {
+  const [selectedArt, setSelectedArt] = useState<any>(null);
+  
   return (
     <div className="pt-32 pb-20 max-w-7xl mx-auto px-8 min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
@@ -1555,6 +1560,7 @@ const ArtMarketplace = () => {
         <div className="max-w-xs text-right">
            <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold mb-2 italic">Aura Art Index: +12.4% ARR</p>
            <div className="h-[1px] bg-gold/30 w-full" />
+           <p className="text-[9px] text-white/20 mt-2 uppercase tracking-widest leading-relaxed">Verified by the Sapna Gallery & Mauritius Arts Collective.</p>
         </div>
       </div>
 
@@ -1563,7 +1569,8 @@ const ArtMarketplace = () => {
           <motion.div 
             key={art.id} 
             whileHover={{ y: -10 }}
-            className="aura-card overflow-hidden bg-[#0A0A0B] border-white/5 flex flex-col h-full"
+            className="aura-card overflow-hidden bg-[#0A0A0B] border-white/5 flex flex-col h-full cursor-pointer"
+            onClick={() => setSelectedArt(art)}
           >
             <div className="aspect-square overflow-hidden relative group">
               <img src={art.img} alt={art.title} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" referrerPolicy="no-referrer" />
@@ -1595,7 +1602,7 @@ const ArtMarketplace = () => {
                <h5 className="text-white font-serif italic mb-4">Investment Landscape Visuals</h5>
                <p className="text-xs text-white/40 leading-relaxed italic">
                  The images displayed throughout the platform are curated to reflect the strategic and aesthetic value of Mauritius. 
-                 From the **UNESCO heritage site of Le Morne**, symbolizing deep historical rootedness and prestige, to the **cyber-punk efficiency of Ebène Cybercity**, 
+                 From the **UNESCO heritage site of Le Morne Brabant**, symbolizing deep historical rootedness and prestige, to the **cyber-punk efficiency of Ebène Cybercity**, 
                  which showcases the island's readiness for high-frequency digital commerce. The vistas of **Grand Baie** represent the lifestyle 
                  standard expected by global elites seeking both sanctuary and luxury.
                </p>
