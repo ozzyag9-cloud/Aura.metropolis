@@ -30,6 +30,26 @@
       },
       "required": ["userId", "amount", "type"]
     },
+    "OwnershipNFT": {
+      "title": "Fractional Ownership NFT",
+      "description": "A digital token representing a fractional stake in a real estate asset.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "estateId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "sharePercentage": { "type": "number" },
+        "mintedAt": { "type": "string", "format": "date-time" },
+        "metadata": { 
+          "type": "object",
+          "properties": {
+            "villaName": { "type": "string" },
+            "location": { "type": "string" }
+          }
+        }
+      },
+      "required": ["estateId", "ownerId", "sharePercentage"]
+    },
     "Passport": {
       "title": "Metropolis Passport",
       "description": "A digital identity document for community members.",
@@ -225,6 +245,10 @@
     "/rewards/{rewardId}": {
       "schema": "RewardRecord",
       "description": "Token distribution logs."
+    },
+    "/ownership_nfts/{nftId}": {
+      "schema": "OwnershipNFT",
+      "description": "Fractional real estate ownership tokens."
     }
   }
 }
