@@ -43,6 +43,7 @@ import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useAdvancedMarkerRef
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Float, MeshDistortMaterial, MeshWobbleMaterial, ContactShadows, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import ReactPlayer from 'react-player';
 
 const MAP_KEYS = [
   process.env.GOOGLE_MAPS_PLATFORM_KEY,
@@ -96,7 +97,7 @@ const VILLAS = [
     price: 1200000, 
     location: "Grand Baie", 
     coords: { lat: -20.0101, lng: 57.5802 },
-    img: 'https://images.unsplash.com/photo-1543165737-142f1f0a6d5a?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070',
     desc: "A stunning contemporary villa with private beach access and metabolic garden nodes."
   },
   { 
@@ -106,7 +107,7 @@ const VILLAS = [
     price: 850000, 
     location: "Tamarin", 
     coords: { lat: -20.3200, lng: 57.3700 },
-    img: 'https://images.unsplash.com/photo-1605307525377-5080c3b0d458?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1554032067-ff703f8c8f00?auto=format&fit=crop&q=80&w=2070',
     desc: "Breathtaking mountain views and automated climate control systems."
   },
   { 
@@ -182,48 +183,65 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 }
 
 const LiveObservatory = () => {
-  const [activeCam, setActiveCam] = useState<'city' | 'beach'>('city');
+  const [activeCam, setActiveCam] = useState<'caudan' | 'govt' | 'place'>('caudan');
+  const Player = ReactPlayer as any;
   
   const cams = {
-    city: {
-      title: "Port Louis Civic Node",
-      url: "https://www.youtube.com/embed/5-XfTjS7BSc?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=5-XfTjS7BSc",
-      stats: { load: "74%", density: "High", security: "Active" }
+    caudan: {
+      title: "Caudan Waterfront Node",
+      url: "https://stream.myt.mu/rh/prod/CAUDAN_NORTH.stream_720p/playlist.m3u8",
+      stats: { load: "82%", density: "High", security: "Active" }
     },
-    beach: {
-      title: "Grand Baie Metabolic Coast",
-      url: "https://www.youtube.com/embed/8-z3yM2G_k0?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=8-z3yM2G_k0",
-      stats: { load: "12%", density: "Low", security: "Passive" }
+    govt: {
+      title: "Govt Street Axis",
+      url: "https://stream.myt.mu/prod/CDM_GOVT_STR_JUNCTION.stream_720p/playlist.m3u8",
+      stats: { load: "45%", density: "Medium", security: "Active" }
+    },
+    place: {
+      title: "Place d'Armes Hub",
+      url: "https://stream.myt.mu/prod/PLACE_DARMES.stream_720p/playlist.m3u8",
+      stats: { load: "62%", density: "Medium", security: "Active" }
     }
   };
 
   return (
     <div className="w-full aspect-video bg-black relative group overflow-hidden border border-white/10">
-      <iframe 
-        src={cams[activeCam].url}
-        className="w-full h-full object-cover scale-110 grayscale group-hover:grayscale-0 transition-all duration-1000"
-        title={cams[activeCam].title}
-        allow="autoplay; encrypted-media"
-      />
+      <div className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-1000">
+        <Player
+          url={cams[activeCam].url}
+          playing
+          muted
+          loop
+          width="100%"
+          height="100%"
+          style={{ transform: 'scale(1.1)' }}
+        />
+      </div>
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
       
-      <div className="absolute top-6 left-6 flex gap-3">
+      <div className="absolute top-6 left-6 flex gap-3 z-20">
          <button 
-           onClick={() => setActiveCam('city')}
-           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'city' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
+           onClick={() => setActiveCam('caudan')}
+           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'caudan' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
          >
-           City Axis
+           Caudan Waterfront
          </button>
          <button 
-           onClick={() => setActiveCam('beach')}
-           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'beach' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
+           onClick={() => setActiveCam('govt')}
+           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'govt' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
          >
-           Public Beach
+           Govt Junction
+         </button>
+         <button 
+           onClick={() => setActiveCam('place')}
+           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'place' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
+         >
+           Place d'Armes
          </button>
       </div>
 
-      <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
+      <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none z-20">
          <div>
             <div className="text-gold text-[10px] uppercase font-bold tracking-widest mb-1 flex items-center gap-2">
                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
@@ -246,10 +264,10 @@ const LiveObservatory = () => {
 
 const MauritiusShowcase = () => {
   const images = [
-    { url: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57", label: "Northern Sanctuary", type: "Pristine" },
-    { url: "https://images.unsplash.com/photo-1605307525377-5080c3b0d458", label: "Grand Baie Hub", type: "Commerce" },
-    { url: "https://images.unsplash.com/photo-1544735716-e3ed28230f71", label: "Port Louis Axis", type: "Technology" },
-    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Preserve", type: "Capital Axis" },
+    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Cultural Landscape", type: "UNESCO Site" },
+    { url: "https://images.unsplash.com/photo-1590247813693-5541d1c609ec", label: "Grand Baie Crystal Basin", type: "Coastal Hub" },
+    { url: "https://images.unsplash.com/photo-1544735716-e3ed28230f71", label: "Port Louis Waterfront", type: "Civic Axis" },
+    { url: "https://images.unsplash.com/photo-1543165737-142f1f0a6d5a", label: "Cap Malheureux Coast", type: "Primal Marine" },
   ];
 
   return (
@@ -965,10 +983,10 @@ const Estates = () => {
   const [filter, setFilter] = useState<'all' | 'prospect' | 'acquired'>('all');
   
   const estates = [
-    { id: 'v1', name: "Oasis North Villa", type: "Residential", price: 1200000, adminFee: 60000, fund: 85, location: "Grand Baie", status: "prospect", img: 'https://images.unsplash.com/photo-1543165737-142f1f0a6d5a?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v2', name: "Azure Heights Penthouse", type: "Residential", price: 850000, adminFee: 42500, fund: 100, location: "Tamarin", status: "acquired", img: 'https://images.unsplash.com/photo-1605307525377-5080c3b0d458?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v1', name: "Oasis North Villa", type: "Residential", price: 1200000, adminFee: 60000, fund: 85, location: "Grand Baie", status: "prospect", img: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v2', name: "Azure Heights Penthouse", type: "Residential", price: 850000, adminFee: 42500, fund: 100, location: "Tamarin", status: "acquired", img: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fcd1?auto=format&fit=crop&q=80&w=2070' },
     { id: 'c1', name: "Port Louis Commercial Node", type: "Commercial", price: 2100000, adminFee: 105000, fund: 100, location: "Port Louis", status: "acquired", img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v3', name: "Emerald Cove Estate", type: "Residential", price: 3400000, adminFee: 170000, fund: 12, location: "Belle Mare", status: "prospect", img: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v3', name: "Emerald Cove Estate", type: "Residential", price: 3400000, adminFee: 170000, fund: 12, location: "Belle Mare", status: "prospect", img: 'https://images.unsplash.com/photo-1552083375-1447ce886485?auto=format&fit=crop&q=80&w=2070' },
   ];
 
   const filtered = estates.filter(e => filter === 'all' || e.status === filter);

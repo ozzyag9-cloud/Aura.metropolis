@@ -1,7 +1,10 @@
-app = "aura-metropolis"
-primary_region = "cdg"
+# fly.toml app configuration file generated for aurametropolis on 2026-05-13
+
+app = "aurametropolis"
+primary_region = "jnb" # Johannesburg is the closest region to Mauritius on Fly.io
 
 [build]
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 3000
@@ -12,5 +15,6 @@ primary_region = "cdg"
   processes = ["app"]
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -2,6 +2,7 @@ node_modules
 dist
 .git
 .env
-README.md
 Dockerfile
 fly.toml
+README.md
+.dockerignore
