@@ -9,6 +9,11 @@ dotenv.config();
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
+  
+  console.log(`App starting...`);
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`PORT environment variable: ${process.env.PORT}`);
+  console.log(`Selected PORT: ${PORT}`);
 
   app.use(express.json());
 
