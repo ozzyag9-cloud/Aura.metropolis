@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Validation Logic
+    function isValidUser(data) {
+      return data.uid is string && data.displayName is string;
+    }
+
+    function isValidNFT(data) {
+      return data.ownerId is string && data.level is int;
+    }
+
+    function isValidInvestment(data) {
+      return data.userId == request.auth.uid && data.amount > 0;
+    }
+
+    function isValidMessage(data) {
+      return data.senderId == request.auth.uid && data.content is string && data.content.size() <= 500;
+    }
+
+    function isValidArtItem(data) {
+      return data.creatorId == request.auth.uid && data.price >= 0;
+    }
+
+    function isValidOrder(data) {
+      return data.userId == request.auth.uid && data.items is list;
+    }
+    
+    function isValidProposal(data) {
+      return data.proposerId == request.auth.uid && data.title is string;
+    }
+
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().totalInvested == 0;
+      allow update: if isOwner(userId) && isValidUser(incoming()) 
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'totalInvested', 'hasGoldVisaEligibility', 'passportId', 'auraBalance', 'hasGoldPass'])
+        && (incoming().displayName is string && incoming().displayName.size() <= 100);
+    }
+
+    // Rewards Collection
+    match /rewards/{rewardId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow write: if false; // System generated
+    }
+
+    // Estates Collection
+    match /estates/{estateId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // NFTs Collection
+    match /nfts/{nftId} {
+      allow read: if true;
+      allow create: if isSignedIn() && incoming().ownerId == request.auth.uid && isValidNFT(incoming());
+      allow update: if isSignedIn() && isOwner(existing().ownerId)
+        && isValidNFT(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['traitDescription', 'auraColor', 'level'])
+        && (incoming().traitDescription is string && incoming().traitDescription.size() <= 1000);
+    }
+
+    // Investments Collection
+    match /investments/{investmentId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidInvestment(incoming());
+    }
+
+    // Art Collection
+    match /art/{artId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidArtItem(incoming());
+      allow update: if isSignedIn() && existing().creatorId == request.auth.uid && isValidArtItem(incoming());
+      allow delete: if isSignedIn() && existing().creatorId == request.auth.uid;
+    }
+
+    // Plots Collection
+    match /plots/{plotId} {
+      allow read: if true;
+      allow write: if false; // System defined for this demo
+    }
+
+    // Messages Collection
+    match /messages/{messageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidMessage(incoming());
+    }
+
+    // Grocery Collection
+    match /groceries/{groceryId} {
+      allow read: if true;
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidOrder(incoming());
+    }
+
+    // Governance Collection
+    match /proposals/{proposalId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // Basic residency required? Simplified: any user for demo
+      allow update: if isSignedIn() && (
+        (incoming().diff(existing()).affectedKeys().hasOnly(['votesFor', 'votesAgainst'])) ||
+        (existing().proposerId == request.auth.uid)
+      );
+    }
+
+    // Passports Collection
+    match /passports/{passportId} {
+      allow read: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().ownerId == request.auth.uid;
+    }
+  }
+}

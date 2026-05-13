@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-gold: #C5A059;
+  --color-gold-hover: #D4AF37;
+  --color-bg-dark: #050505;
+  --color-bg-panel: #0A0A0B;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-[#E0E0E0] antialiased selection:bg-gold/30;
+  }
+}
+
+.gold-border {
+  @apply border border-gold/30;
+}
+
+.gold-text {
+  @apply text-gold;
+}
+
+.gold-bg {
+  @apply bg-gold;
+}
+
+.tracking-archive {
+  @apply tracking-[0.2em] uppercase text-[11px] font-medium;
+}
+
+.aura-card {
+  @apply bg-bg-panel border border-white/10 rounded-none transition-all duration-300 hover:border-gold/30;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #8E6D3B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

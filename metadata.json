@@ -1,0 +1,6 @@
+{
+  "name": "AuraMetropolis",
+  "description": "A fractional real-estate investment platform and dynamic NFT metropolis for the Mauritius Gold Visa program.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

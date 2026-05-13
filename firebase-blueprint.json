@@ -1,0 +1,230 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Public profile and investment tracking for AuraMetropolis users.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "totalInvested": { "type": "number" },
+        "auraBalance": { "type": "number" },
+        "hasGoldVisaEligibility": { "type": "boolean" },
+        "hasGoldPass": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "passportId": { "type": "string" }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "RewardRecord": {
+      "title": "Reward Transaction",
+      "description": "Logs for AURA token distributions and dividends.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["dividend", "staking", "mining"] },
+        "amount": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "type"]
+    },
+    "Passport": {
+      "title": "Metropolis Passport",
+      "description": "A digital identity document for community members.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "tier": { "type": "string", "enum": ["Resident", "Citizen", "Representative"] },
+        "issuedAt": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["id", "ownerId", "tier"]
+    },
+    "ArtItem": {
+      "title": "Digital Art",
+      "description": "Art listed in the gallery by creators.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "creatorId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "isForSale": { "type": "boolean" },
+        "commission": { "type": "number" }
+      },
+      "required": ["id", "creatorId", "title", "price"]
+    },
+    "Plot": {
+      "title": "Metropolis Plot",
+      "description": "A specific piece of digitalized land.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "coordinate": { "type": "string" },
+        "projectType": { "type": "string", "enum": ["Gallery", "Marketplace", "Grocery", "Townhall", "Villa", "Apartment", "Empty"] },
+        "ownerId": { "type": "string" },
+        "status": { "type": "string", "enum": ["planned", "under-construction", "live"] }
+      },
+      "required": ["id", "projectType"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "Real-time message in the community chat room.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "content": { "type": "string" },
+        "theme": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "content"]
+    },
+    "GroceryItem": {
+      "title": "Grocery Item",
+      "description": "Available products in the digital grocery store.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "stock": { "type": "integer" }
+      },
+      "required": ["id", "name", "price"]
+    },
+    "Order": {
+      "title": "Grocery Order",
+      "description": "A user's grocery purchase for delivery.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered"] },
+        "address": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "total"]
+    },
+    "GovernanceProposal": {
+      "title": "Governance Proposal",
+      "description": "A matter for community vote in the townhall.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "proposerId": { "type": "string" },
+        "votesFor": { "type": "integer" },
+        "votesAgainst": { "type": "integer" },
+        "status": { "type": "string", "enum": ["active", "passed", "rejected", "archived"] },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "proposerId"]
+    },
+    "Estate": {
+      "title": "Real Estate Listing",
+      "description": "A real or prospective property in the Mauritius portfolio.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["Residential", "Commercial", "Metabolic"] },
+        "status": { "type": "string", "enum": ["prospect", "funding", "acquired", "operational"] },
+        "price": { "type": "number" },
+        "adminFee": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "location": { "type": "string" },
+        "coordinates": { "type": "string" },
+        "isExclusive": { "type": "boolean" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "price", "status"]
+    },
+    "NFT": {
+      "title": "Dynamic NFT",
+      "description": "An evolving digital asset linked to the user's investment levels.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "level": { "type": "integer" },
+        "traitDescription": { "type": "string" },
+        "auraColor": { "type": "string" },
+        "lastEvolution": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerId", "level"]
+    },
+    "Investment": {
+      "title": "Investment Record",
+      "description": "A record of a user's fractional investment in an estate.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "estateId": { "type": "string" },
+        "amount": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "estateId", "amount"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and metadata."
+    },
+    "/estates/{estateId}": {
+      "schema": "Estate",
+      "description": "Available real estate projects for funding."
+    },
+    "/nfts/{nftId}": {
+      "schema": "NFT",
+      "description": "Dynamic NFTs belonging to users."
+    },
+    "/investments/{investmentId}": {
+      "schema": "Investment",
+      "description": "Transaction logs for investments."
+    },
+    "/passports/{passportId}": {
+      "schema": "Passport",
+      "description": "Community member digital passports."
+    },
+    "/art/{artId}": {
+      "schema": "ArtItem",
+      "description": "Digital art marketplace items."
+    },
+    "/plots/{plotId}": {
+      "schema": "Plot",
+      "description": "Digital land plot metadata."
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Community chat messages."
+    },
+    "/groceries/{groceryId}": {
+      "schema": "GroceryItem",
+      "description": "Available grocery products."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "User grocery orders."
+    },
+    "/proposals/{proposalId}": {
+      "schema": "GovernanceProposal",
+      "description": "Community governance matters."
+    },
+    "/rewards/{rewardId}": {
+      "schema": "RewardRecord",
+      "description": "Token distribution logs."
+    }
+  }
+}
