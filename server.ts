@@ -12,35 +12,51 @@ async function startServer() {
 
   app.use(express.json());
 
-  // Gemini Setup
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY || "",
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
+  // Gemini Setup with Fallback
+  const GEMINI_KEYS = [
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3
+  ].filter(Boolean) as string[];
+
+  const getAI = (keyIndex = 0): GoogleGenAI => {
+    return new GoogleGenAI({
+      apiKey: GEMINI_KEYS[keyIndex] || GEMINI_KEYS[0] || "",
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
       }
-    }
-  });
+    });
+  };
 
   // API Routes
   app.post("/api/generate-nft-trait", async (req, res) => {
-    try {
-      const { currentStatus, investmentLevel } = req.body;
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Status: ${currentStatus}, Investment Level: ${investmentLevel}`,
-        config: {
-          systemInstruction: "You are the AuraMetropolis Architect. Generate a short, poetic description (max 20 words) for a real-estate NFT that is evolving. Incorporate the investment level and a sense of 'future luxury'. Return as JSON: { \"traitText\": \"string\", \"auraColor\": \"#HEX\" }",
-          responseMimeType: "application/json",
-        }
-      });
-      
-      const result = JSON.parse(response.text || "{}");
-      res.json(result);
-    } catch (error) {
-      console.error("Gemini Error:", error);
-      res.status(500).json({ error: "Failed to generate trait" });
+    const { currentStatus, investmentLevel } = req.body;
+    
+    let lastError = null;
+    for (let i = 0; i < GEMINI_KEYS.length; i++) {
+      try {
+        const ai = getAI(i);
+        const response = await ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents: `Status: ${currentStatus}, Investment Level: ${investmentLevel}`,
+          config: {
+            systemInstruction: "You are the AuraMetropolis Architect. Generate a short, poetic description (max 20 words) for a real-estate NFT that is evolving. Incorporate the investment level and a sense of 'future luxury'. Return as JSON: { \"traitText\": \"string\", \"auraColor\": \"#HEX\" }",
+            responseMimeType: "application/json",
+          }
+        });
+        
+        const result = JSON.parse(response.text || "{}");
+        return res.json(result);
+      } catch (error) {
+        console.warn(`Gemini Key ${i + 1} failed, trying next...`, error);
+        lastError = error;
+      }
     }
+
+    console.error("All Gemini Keys failed:", lastError);
+    res.status(500).json({ error: "Failed to generate trait after retrying all available keys" });
   });
 
   app.get("/api/health", (req, res) => {

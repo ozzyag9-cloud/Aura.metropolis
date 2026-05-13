@@ -41,8 +41,46 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, query, collection, where, addDoc, orderBy, limit, serverTimestamp, updateDoc, increment } from 'firebase/firestore';
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps';
 
-const API_KEY = process.env.GOOGLE_MAPS_PLATFORM_KEY || '';
-const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY';
+const MAP_KEYS = [
+  process.env.GOOGLE_MAPS_PLATFORM_KEY,
+  process.env.GOOGLE_MAPS_PLATFORM_KEY_2,
+  process.env.GOOGLE_MAPS_PLATFORM_KEY_3
+].filter(Boolean) as string[];
+
+const MapWithFallback = ({ children }: { children: ReactNode }) => {
+  const [keyIndex, setKeyIndex] = useState(0);
+  const currentKey = MAP_KEYS[keyIndex] || '';
+
+  useEffect(() => {
+    // Google Maps Auth Failure Global Handler
+    (window as any).gm_authFailure = () => {
+      console.warn(`Google Maps Auth Failure with key index ${keyIndex}. Attempting fallback...`);
+      if (keyIndex < MAP_KEYS.length - 1) {
+        setKeyIndex(prev => prev + 1);
+      }
+    };
+    return () => {
+      (window as any).gm_authFailure = null;
+    };
+  }, [keyIndex]);
+
+  if (!currentKey) {
+    return (
+      <div className="flex items-center justify-center h-full bg-black/40 border border-white/5">
+        <div className="text-center p-8">
+          <Lock className="w-8 h-8 text-gold mx-auto mb-4 opacity-20" />
+          <p className="text-[10px] text-white/30 uppercase tracking-[0.2em]">Sovereign Encryption: No Map Key Found</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <APIProvider apiKey={currentKey} key={currentKey}>
+      {children}
+    </APIProvider>
+  );
+};
 
 // --- Constants ---
 
@@ -91,6 +129,159 @@ const VILLAS = [
 ];
 
 // --- Components ---
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  // We throw it so the system can catch it and diagnose rules
+  throw new Error(JSON.stringify(errInfo));
+}
+
+const LiveObservatory = () => {
+  const [activeCam, setActiveCam] = useState<'city' | 'beach'>('city');
+  
+  const cams = {
+    city: {
+      title: "Port Louis Civic Node",
+      url: "https://www.youtube.com/embed/SshHw6GfT24?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1",
+      stats: { load: "74%", density: "High", security: "Active" }
+    },
+    beach: {
+      title: "Grand Baie Metabolic Coast",
+      url: "https://www.youtube.com/embed/SshHw6GfT24?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1", // Placeholder, usually same channel has multiple
+      stats: { load: "12%", density: "Low", security: "Passive" }
+    }
+  };
+
+  return (
+    <div className="w-full aspect-video bg-black relative group overflow-hidden border border-white/10">
+      <iframe 
+        src={cams[activeCam].url}
+        className="w-full h-full object-cover scale-110 grayscale group-hover:grayscale-0 transition-all duration-1000"
+        title={cams[activeCam].title}
+        allow="autoplay; encrypted-media"
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+      
+      <div className="absolute top-6 left-6 flex gap-3">
+         <button 
+           onClick={() => setActiveCam('city')}
+           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'city' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
+         >
+           City Axis
+         </button>
+         <button 
+           onClick={() => setActiveCam('beach')}
+           className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border ${activeCam === 'beach' ? 'bg-gold text-black border-gold' : 'bg-black/80 text-white/40 border-white/10 hover:border-white/30'}`}
+         >
+           Public Beach
+         </button>
+      </div>
+
+      <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
+         <div>
+            <div className="text-gold text-[10px] uppercase font-bold tracking-widest mb-1 flex items-center gap-2">
+               <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+               Live Feed // Metropolitan Observer
+            </div>
+            <h4 className="text-xl font-serif italic text-white">{cams[activeCam].title}</h4>
+         </div>
+         <div className="flex gap-8">
+            {Object.entries(cams[activeCam].stats).map(([k, v]) => (
+              <div key={k} className="flex flex-col items-end">
+                 <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">{k}</span>
+                 <span className="text-xs text-white/60 font-mono">{v}</span>
+              </div>
+            ))}
+         </div>
+      </div>
+    </div>
+  );
+};
+
+const MauritiusShowcase = () => {
+  const images = [
+    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Sanctuary", type: "Pristine" },
+    { url: "https://images.unsplash.com/photo-1590523741491-345ad024430f", label: "Grand Baie Hub", type: "Commerce" },
+    { url: "https://images.unsplash.com/photo-1580137197581-53696660639d", label: "Ebene Cybercity", type: "Technology" },
+    { url: "https://images.unsplash.com/photo-1544735716-392fe2489ffa", label: "Port Louis Marina", type: "Capital Axis" },
+  ];
+
+  return (
+    <section className="py-32">
+       <div className="flex justify-between items-end mb-16 px-8">
+          <div>
+            <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Island Tapestry</h2>
+            <h3 className="text-5xl font-serif italic text-white leading-tight">Mauritius Landscape <br /> & Corporate Life</h3>
+          </div>
+          <div className="hidden lg:block max-w-sm text-right">
+             <p className="text-xs text-white/30 italic leading-relaxed">
+               "A synergy of sub-tropical tranquility and hyper-efficient digital infrastructure. The Metropolis is not just a place, but an state of being."
+             </p>
+          </div>
+       </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-4">
+          {images.map((img, i) => (
+            <motion.div 
+              key={i}
+              whileHover={{ scale: 1.02 }}
+              className="aspect-[3/4] relative overflow-hidden group aura-card border-white/5"
+            >
+               <img src={img.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" alt={img.label} />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
+               <div className="absolute bottom-6 left-6">
+                  <span className="text-[9px] text-gold font-bold uppercase tracking-widest mb-1 block">{img.type}</span>
+                  <h4 className="text-xl font-serif italic text-white">{img.label}</h4>
+               </div>
+            </motion.div>
+          ))}
+       </div>
+    </section>
+  );
+};
 
 const Navbar = ({ user, auraBalance }: { user: User | null, auraBalance: number }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -164,6 +355,7 @@ const Navbar = ({ user, auraBalance }: { user: User | null, auraBalance: number 
             <Link to="/grocery" onClick={() => setIsOpen(false)}>Grocery Node</Link>
             <Link to="/media" onClick={() => setIsOpen(false)}>Media Hub</Link>
             <Link to="/citadel" onClick={() => setIsOpen(false)}>The Citadel</Link>
+            {user && <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>}
             {!user && <button onClick={signInWithGoogle} className="bg-white text-black py-2 rounded-lg text-xs font-bold uppercase">Initialize Protocol</button>}
           </motion.div>
         )}
@@ -318,6 +510,16 @@ const Landing = () => (
           ))}
         </div>
       </div>
+
+      <MauritiusShowcase />
+
+      <div className="mb-32">
+         <div className="mb-16">
+            <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Sovereign Eye</h2>
+            <h3 className="text-5xl font-serif italic text-white">Live Metropolis Stream</h3>
+         </div>
+         <LiveObservatory />
+      </div>
     </div>
   </div>
 );
@@ -331,18 +533,20 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
     if (!user) return;
     
     // Subscribe to profile
+    const profilePath = `users/${user.uid}`;
     const unsubProfile = onSnapshot(doc(db, 'users', user.uid), (snap) => {
       setProfile(snap.data());
-    });
+    }, (err) => handleFirestoreError(err, OperationType.GET, profilePath));
 
     // Subscribe to NFT (assuming 1 NFT for demo)
-    const unsubNft = onSnapshot(query(collection(db, 'nfts'), where('ownerId', '==', user.uid)), (snap) => {
+    const nftPath = 'nfts';
+    const unsubNft = onSnapshot(query(collection(db, nftPath), where('ownerId', '==', user.uid)), (snap) => {
       if (!snap.empty) {
         setNft({ id: snap.docs[0].id, ...snap.docs[0].data() });
       } else {
         setNft(null);
       }
-    });
+    }, (err) => handleFirestoreError(err, OperationType.LIST, nftPath));
 
     return () => {
       unsubProfile();
@@ -358,6 +562,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
     
     try {
       // 1. Create investment record
+      const invPath = `investments/${investmentId}`;
       await setDoc(doc(db, 'investments', investmentId), {
         userId,
         estateId: 'demo-estate',
@@ -366,6 +571,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
       });
 
       // 2. Update user profile (simulating aggregation for demo)
+      const userPath = `users/${userId}`;
       const newTotal = (profile?.totalInvested || 0) + amount;
       await setDoc(doc(db, 'users', userId), {
         ...profile,
@@ -376,6 +582,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
       // 3. Trigger NFT evolution if needed or just update metadata
       if (!nft) {
         // Create initial NFT
+        const newNftPath = `nfts/nft-${userId}`;
         await setDoc(doc(db, 'nfts', `nft-${userId}`), {
           ownerId: userId,
           level: 1,
@@ -396,6 +603,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
         });
         const data = await res.json();
         
+        const nftUpdatePath = `nfts/${nft.id}`;
         await setDoc(doc(db, 'nfts', nft.id), {
           ...nft,
           level: nft.level + 1,
@@ -406,7 +614,7 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
         setIsEvolving(false);
       }
     } catch (err) {
-      console.error("Investment failed:", err);
+      handleFirestoreError(err, OperationType.WRITE, 'metropolis-transaction');
     }
   };
 
@@ -694,7 +902,7 @@ const MapPortal = () => {
   const [infoOpen, setInfoOpen] = useState(false);
   const navigate = useNavigate();
 
-  if (!hasValidKey) {
+  if (MAP_KEYS.length === 0) {
     return (
       <div className="pt-40 flex flex-col items-center justify-center min-h-[60vh] text-center">
         <Lock className="w-12 h-12 text-gold mb-6 opacity-20" />
@@ -734,7 +942,7 @@ const MapPortal = () => {
       </div>
 
       <div className="h-[700px] border border-white/10 relative aura-card overflow-hidden">
-        <APIProvider apiKey={API_KEY} version="weekly">
+        <MapWithFallback>
           <Map
             defaultCenter={MAURITIUS_CENTER}
             defaultZoom={10}
@@ -787,7 +995,7 @@ const MapPortal = () => {
               </InfoWindow>
             )}
           </Map>
-        </APIProvider>
+        </MapWithFallback>
       </div>
     </div>
   );
@@ -795,16 +1003,62 @@ const MapPortal = () => {
 
 const VillaDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const villa = VILLAS.find(v => v.id === id);
+  const [shares, setShares] = useState(1);
+  const [minting, setMinting] = useState(false);
+  const [ownedNfts, setOwnedNfts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!auth.currentUser || !id) return;
+    const path = 'ownership_nfts';
+    const q = query(collection(db, path), where('ownerId', '==', auth.currentUser.uid), where('estateId', '==', id));
+    return onSnapshot(q, (snap) => {
+      setOwnedNfts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, path);
+    });
+  }, [id]);
 
   if (!villa) return <div className="pt-40 text-center text-white/20">Villa not found</div>;
+
+  const totalCost = (villa.price * (shares / 100));
+
+  const handleMint = async () => {
+    if (!auth.currentUser) {
+      signInWithGoogle();
+      return;
+    }
+    setMinting(true);
+    try {
+      await addDoc(collection(db, 'ownership_nfts'), {
+        estateId: villa.id,
+        ownerId: auth.currentUser.uid,
+        sharePercentage: shares,
+        mintedAt: new Date().toISOString(),
+        metadata: {
+          villaName: villa.name,
+          location: villa.location,
+          img: villa.img
+        }
+      });
+      alert(`Success! Minted ${shares}% fractional NFT for ${villa.name}`);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, 'ownership_nfts');
+    } finally {
+      setMinting(false);
+    }
+  };
 
   return (
     <div className="pt-32 pb-20 max-w-7xl mx-auto px-8 min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
          <div>
-            <div className="aspect-[4/5] bg-black border border-white/10 overflow-hidden aura-card">
+            <div className="aspect-[4/5] bg-black border border-white/10 overflow-hidden aura-card sticky top-32">
                <img src={villa.img} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt={villa.name} />
+               <div className="absolute top-6 left-6 flex gap-2">
+                  <div className="bg-black/80 backdrop-blur-md border border-white/10 px-4 py-2 text-[10px] font-bold text-gold uppercase tracking-[0.2em]">Fractional Asset</div>
+               </div>
             </div>
          </div>
          
@@ -840,12 +1094,83 @@ const VillaDetails = () => {
                </div>
             </div>
 
+            {/* Tokenization Interface */}
+            <div className="aura-card p-10 bg-[#0A0A0B] border-gold/20 mb-10">
+               <div className="flex items-center justify-between mb-8">
+                  <h4 className="text-xs uppercase tracking-[0.3em] font-bold text-gold flex items-center gap-3">
+                     <Zap className="w-4 h-4" /> Fractional Tokenization
+                  </h4>
+                  <div className="text-[10px] text-white/40 font-mono">LIQUIDITY: OPTIMAL</div>
+               </div>
+               
+               <div className="space-y-8">
+                  <div>
+                     <div className="flex justify-between items-center mb-4">
+                        <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">Share Percentage</span>
+                        <span className="text-xl font-serif text-white">{shares}%</span>
+                     </div>
+                     <input 
+                        type="range" 
+                        min="1" 
+                        max="100" 
+                        value={shares} 
+                        onChange={(e) => setShares(parseInt(e.target.value))}
+                        className="w-full accent-gold bg-white/5 h-1 rounded-full appearance-none cursor-pointer"
+                     />
+                     <div className="flex justify-between mt-2 text-[9px] text-white/20 font-bold uppercase tracking-widest">
+                        <span>1% (MIN)</span>
+                        <span>100% (FULL)</span>
+                     </div>
+                  </div>
+
+                  <div className="p-6 bg-white/2 border border-white/5 flex justify-between items-center">
+                     <div>
+                        <span className="text-[9px] text-white/30 uppercase font-bold tracking-widest block mb-1">Acquisition Cost</span>
+                        <span className="text-2xl font-serif text-white">${totalCost.toLocaleString()}</span>
+                     </div>
+                     <div className="text-right">
+                        <span className="text-[9px] text-white/30 uppercase font-bold tracking-widest block mb-1">Estimated APY</span>
+                        <span className="text-2xl font-serif text-green-500">8.4%</span>
+                     </div>
+                  </div>
+
+                  <button 
+                    onClick={handleMint}
+                    disabled={minting}
+                    className="w-full py-5 bg-gold text-black font-bold text-xs uppercase tracking-[0.4em] hover:bg-gold-hover transition-all flex items-center justify-center gap-3"
+                  >
+                    {minting ? "MINTING_PROTOCOL_ACTIVE..." : "MINT FRACTIONAL NFT"}
+                  </button>
+               </div>
+            </div>
+
+            {ownedNfts.length > 0 && (
+              <div className="mb-10">
+                 <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/30 mb-6 flex items-center gap-3">
+                    <Layers className="w-3 h-3" /> Your Fractional Stakes
+                 </h4>
+                 <div className="grid grid-cols-1 gap-4">
+                    {ownedNfts.map(nft => (
+                       <div key={nft.id} className="p-6 border border-white/5 bg-white/2 flex justify-between items-center">
+                          <div className="flex items-center gap-4">
+                             <div className="w-10 h-10 border border-gold/30 flex items-center justify-center bg-gold/5">
+                                <Cpu className="w-4 h-4 text-gold" />
+                             </div>
+                             <div>
+                                <div className="text-white text-sm font-serif italic">{nft.sharePercentage}% Ownership Node</div>
+                                <div className="text-[9px] text-white/20 font-mono uppercase">{nft.id.slice(0, 12)}...</div>
+                             </div>
+                          </div>
+                          <button className="text-gold text-[9px] uppercase font-bold tracking-widest border-b border-gold/20 pb-0.5">Manage Assets</button>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+            )}
+
             <div className="flex gap-6">
-               <button className="flex-1 py-5 bg-gold text-black font-bold text-xs uppercase tracking-[0.4em] hover:bg-gold-hover transition-all">
-                  Initialize Acquisition
-               </button>
                <button className="flex-1 py-5 border border-white/10 text-white/50 font-bold text-xs uppercase tracking-[0.4em] hover:bg-white/5 transition-all">
-                  Contact Counselor
+                  Contact Specialist
                </button>
             </div>
          </div>
@@ -953,10 +1278,12 @@ const MediaHub = ({ user }: { user: User | null }) => {
             </form>
           </div>
         ) : (
-          <div className="flex-1 bg-black flex items-center justify-center">
-            <div className="text-center">
-              <Play className="w-16 h-16 text-gold mb-4 mx-auto animate-pulse" />
-              <h4 className="text-white/50 uppercase tracking-widest text-xs">Live Stream: Island Economics</h4>
+          <div className="flex-1 bg-black flex flex-col items-center justify-center p-8">
+            <div className="w-full max-w-4xl">
+              <LiveObservatory />
+            </div>
+            <div className="mt-8 text-center">
+              <p className="text-white/40 text-xs tracking-widest uppercase italic font-bold">Node Stream: Mauritius Archipelago Observation Axis</p>
             </div>
           </div>
         )}
@@ -1107,6 +1434,139 @@ const Gallery = () => (
   </div>
 );
 
+const Dashboard = ({ user, profile, auraBalance }: { user: User | null, profile: any, auraBalance: number }) => {
+  const [nfts, setNfts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const path = 'ownership_nfts';
+    const q = query(collection(db, path), where('ownerId', '==', user.uid));
+    return onSnapshot(q, (snap) => {
+      setNfts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, path);
+    });
+  }, [user]);
+
+  if (!user) return <div className="pt-40 text-center text-white/20">Protocol initialization required.</div>;
+
+  return (
+    <div className="pt-32 pb-20 max-w-7xl mx-auto px-8 min-h-screen">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+        <div>
+          <h2 className="text-sm uppercase tracking-[0.4em] font-bold text-gold mb-4">Metropolis Registry</h2>
+          <h3 className="text-5xl font-serif italic text-white flex items-center gap-6">
+            Sovereign Dashboard
+            <div className="px-4 py-1 bg-gold/10 border border-gold/30 text-gold text-[10px] font-bold uppercase tracking-widest">Metabolic Level: {profile?.hasGoldVisaEligibility ? "ELITE" : "MEMBER"}</div>
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-10">
+           <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">Total Invested</span>
+              <div className="text-3xl font-serif text-white">${profile?.totalInvested?.toLocaleString() || '0'}</div>
+           </div>
+           <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">AURA Assets</span>
+              <div className="text-3xl font-serif text-gold">{auraBalance.toFixed(2)}</div>
+           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8">
+           <section className="mb-16">
+              <h4 className="text-xs uppercase tracking-[0.3em] font-bold text-white/20 mb-8 flex items-center gap-4">
+                 <Building2 className="w-4 h-4" /> Real Estate Assets (NFT Stakes)
+              </h4>
+              
+              {loading ? (
+                <div className="h-40 flex items-center justify-center text-white/20 italic">Scanning decentralized registry...</div>
+              ) : nfts.length === 0 ? (
+                <div className="aura-card p-12 bg-[#0A0A0B] text-center border-dashed border-white/10">
+                   <p className="text-white/40 italic mb-8">"No property nodes linked to this identity protocol."</p>
+                   <Link to="/map" className="inline-block py-4 px-10 bg-white/5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:border-gold transition-all">Explore Node Network</Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   {nfts.map((nft) => (
+                      <div key={nft.id} className="aura-card bg-[#0A0A0B] overflow-hidden group">
+                         <div className="h-40 relative">
+                            <img src={nft.metadata?.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                            <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 text-[9px] text-gold font-bold uppercase tracking-widest">
+                               {nft.sharePercentage}% NODE STAKE
+                            </div>
+                         </div>
+                         <div className="p-8">
+                            <h5 className="text-xl font-serif italic text-white mb-2">{nft.metadata?.villaName}</h5>
+                            <p className="text-[10px] text-white/40 mb-6 uppercase tracking-widest">{nft.metadata?.location}</p>
+                            <div className="flex justify-between items-center pt-6 border-t border-white/5">
+                               <div className="flex items-center gap-2">
+                                  <Cpu className="w-3 h-3 text-gold/50" />
+                                  <span className="text-[9px] font-mono text-white/20 uppercase">{nft.id.slice(0, 16)}...</span>
+                               </div>
+                               <button className="text-gold text-[9px] font-bold uppercase tracking-widest hover:underline">Marketplace</button>
+                            </div>
+                         </div>
+                      </div>
+                   ))}
+                </div>
+              )}
+           </section>
+
+           <section>
+              <h4 className="text-xs uppercase tracking-[0.3em] font-bold text-white/20 mb-8 flex items-center gap-4">
+                 <Trophy className="w-4 h-4" /> Residency Milestones
+              </h4>
+              <div className="space-y-6">
+                 {[
+                   { label: "Identity Verified", status: "COMPLETED", date: "System Entry" },
+                   { label: "First Stake Acquired", status: nfts.length > 0 ? "COMPLETED" : "PENDING", date: nfts.length > 0 ? "Verified" : "--" },
+                   { label: "Portfolio Threshold ($1.0M)", status: (profile?.totalInvested || 0) >= 1000000 ? "COMPLETED" : "IN PROGRESS", date: `${((profile?.totalInvested || 0) / 10000).toFixed(1)}%` },
+                   { label: "Gold Visa Fast-Track", status: (profile?.totalInvested || 0) >= 1000000 ? "READY" : "LOCKED", date: "Priority Access" }
+                 ].map((m, i) => (
+                   <div key={i} className="flex justify-between items-center p-6 bg-[#0A0A0B] border border-white/5 hover:border-gold/20 transition-all">
+                      <div className="flex items-center gap-6">
+                         <div className={`w-3 h-3 rounded-full ${m.status === 'COMPLETED' ? 'bg-green-500 shadow-[0_0_100px_rgba(34,197,94,0.3)]' : 'bg-white/10'}`} />
+                         <div>
+                            <div className="text-white text-sm font-serif italic">{m.label}</div>
+                            <div className="text-[9px] text-white/20 font-bold uppercase tracking-widest">{m.date}</div>
+                         </div>
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest ${m.status === 'COMPLETED' || m.status === 'READY' ? 'text-gold' : 'text-white/10'}`}>{m.status}</span>
+                   </div>
+                 ))}
+              </div>
+           </section>
+        </div>
+
+        <div className="lg:col-span-4 space-y-8">
+           <div className="aura-card p-10 bg-gold/5 border-gold/30">
+              <Sparkles className="w-8 h-8 text-gold mb-8" />
+              <h4 className="text-2xl font-serif italic text-white mb-4">Sovereign Benefits</h4>
+              <p className="text-sm text-white/50 leading-relaxed italic mb-8">
+                 "As a Metropolis Citizen, your assets generate metabolic yield while paving the way for perpetual residency in Mauritius."
+              </p>
+              <ul className="space-y-4 mb-10">
+                 <li className="flex gap-4 text-xs italic text-white/40">
+                    <Zap className="w-4 h-4 text-gold flex-shrink-0" />
+                    Priority access to new Node launches.
+                 </li>
+                 <li className="flex gap-4 text-xs italic text-white/40">
+                    <Zap className="w-4 h-4 text-gold flex-shrink-0" />
+                    Direct council voting privileges.
+                 </li>
+              </ul>
+              <button className="w-full py-4 border border-gold text-gold text-[10px] uppercase font-bold tracking-widest hover:bg-gold hover:text-black transition-all">Print Passport</button>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PageWrapper = ({ children }: { children: ReactNode }) => {
   return (
     <motion.div
@@ -1127,13 +1587,22 @@ function AppContent() {
   const location = useLocation();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    let unsubProfile: (() => void) | null = null;
+
+    const unsubAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      
+      // Cleanup previous profile listener if exists
+      if (unsubProfile) {
+        unsubProfile();
+        unsubProfile = null;
+      }
+
       if (u) {
         const userRef = doc(db, 'users', u.uid);
         
         // Use onSnapshot for real-time balance and profile tracking
-        onSnapshot(userRef, (snap) => {
+        unsubProfile = onSnapshot(userRef, (snap) => {
           if (snap.exists()) {
              const data = snap.data();
              setProfile(data);
@@ -1141,16 +1610,21 @@ function AppContent() {
           } else {
              setDoc(userRef, {
                uid: u.uid,
-               displayName: u.displayName,
+               displayName: u.displayName || 'Sovereign Citizen',
                photoURL: u.photoURL,
                totalInvested: 0,
                auraBalance: 100, // Initial welcome grant
                hasGoldVisaEligibility: false,
                hasGoldPass: false,
                createdAt: new Date().toISOString()
-             });
+             }).catch(err => handleFirestoreError(err, OperationType.CREATE, `users/${u.uid}`));
           }
+        }, (err) => {
+          handleFirestoreError(err, OperationType.GET, `users/${u.uid}`);
         });
+      } else {
+        setProfile(null);
+        setAuraBalance(0);
       }
     });
 
@@ -1165,7 +1639,8 @@ function AppContent() {
     }, 10000);
 
     return () => {
-      unsub();
+      unsubAuth();
+      if (unsubProfile) unsubProfile();
       clearInterval(interval);
     };
   }, []);
@@ -1186,22 +1661,61 @@ function AppContent() {
           <Route path="/media" element={<PageWrapper><MediaHub user={user} /></PageWrapper>} />
           <Route path="/citadel" element={<PageWrapper><Citadel user={user} profile={profile} /></PageWrapper>} />
           <Route path="/villa/:id" element={<PageWrapper><VillaDetails /></PageWrapper>} />
-          <Route path="/dashboard" element={<PageWrapper><div className="pt-32 text-center h-[60vh] flex items-center justify-center">User Dashboard (Account Stats) - Coming Soon</div></PageWrapper>} />
+          <Route path="/dashboard" element={<PageWrapper><Dashboard user={user} profile={profile} auraBalance={auraBalance} /></PageWrapper>} />
         </Routes>
       </AnimatePresence>
 
-      <footer className="h-20 bg-black border-t border-white/10 flex items-center px-10 justify-between text-[9px] uppercase tracking-[0.2em] text-white/30 mt-20">
-        <div className="flex items-center gap-4">
-           <span>SYSTEM STATUS: <span className="text-green-500">NEURAL-MINT ACTIVE</span></span>
-           <span className="hidden md:inline text-white/10">|</span>
-           <span className="hidden md:inline">TPS: 144,002 | LATENCY: 12MS</span>
-        </div>
-        <div className="hidden lg:block text-center flex-1 mx-10">
-           © 2026 GEOMETROPOLIS PROTOCOL. ALL ASSETS ARE BACKED BY GOLD REQUISITIONS.
-        </div>
-        <div className="flex gap-6">
-           <a href="#" className="hover:text-gold transition-colors">Whitepaper</a>
-           <a href="#" className="hover:text-gold transition-colors">Terms</a>
+      <footer className="py-20 bg-black border-t border-white/5 mt-20">
+        <div className="max-w-7xl mx-auto px-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="col-span-2">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-full border border-gold flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 bg-gold rounded-full" />
+                </div>
+                <span className="text-xl font-serif italic text-white tracking-widest">METROPOLIS</span>
+              </div>
+              <p className="text-white/30 text-[10px] leading-relaxed max-w-sm italic uppercase tracking-wider">
+                The world's first sovereign real-estate ecosystem, blending sub-tropical sanctuary with hyper-efficient digital capital.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-[10px] uppercase font-bold tracking-widest text-gold mb-6">Navigation</h4>
+              <ul className="space-y-4 text-[10px] text-white/40 font-medium uppercase tracking-widest">
+                <li className="hover:text-gold cursor-pointer transition-colors">Economic Node</li>
+                <li className="hover:text-gold cursor-pointer transition-colors">Residential Axis</li>
+                <li className="hover:text-gold cursor-pointer transition-colors">Governance API</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-[10px] uppercase font-bold tracking-widest text-gold mb-6">System Protocol</h4>
+              <p className="text-[9px] text-white/20 uppercase tracking-[0.2em] leading-loose">
+                SYSTEM STATUS: <span className="text-green-500">NEURAL-MINT ACTIVE</span> <br />
+                TPS: 144,002 | LATENCY: 12MS <br />
+                MAURITIUS HUB IP: 197.224.0.0/14
+              </p>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-white/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+            <div className="flex-1">
+              <p className="text-[9px] text-white/40 uppercase tracking-[0.2em] font-medium mb-4">
+                © 2026 GEOMETROPOLIS PROTOCOL. ALL ASSETS ARE BACKED BY GOLD REQUISITIONS.
+              </p>
+              <div className="flex gap-6 text-[9px] uppercase tracking-widest text-white/20">
+                 <a href="#" className="hover:text-gold transition-colors">Whitepaper</a>
+                 <a href="#" className="hover:text-gold transition-colors">Digital Constitution</a>
+                 <a href="#" className="hover:text-gold transition-colors">Privacy Node</a>
+              </div>
+            </div>
+            <div className="lg:max-w-xl text-left lg:text-right">
+              <p className="text-[8px] text-white/20 uppercase tracking-[0.15em] leading-loose font-bold">
+                Intellectual Property & Legal Notice: All source code, architectural logic, visual components, proprietary algorithms, and UI/UX patterns within this platform are the exclusive intellectual property of AuraMetropolis. 
+                Unauthorized use, reproduction, reverse engineering, adaptation, or redistribution of any part of this system is strictly prohibited. 
+                Any individual or entity found using components of this platform without explicit authorization will be subject to civil prosecution for damages to the fullest extent of the law.
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
