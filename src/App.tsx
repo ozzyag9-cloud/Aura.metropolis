@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode, useRef, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -40,6 +40,9 @@ import { auth, signInWithGoogle, db } from './lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, query, collection, where, addDoc, orderBy, limit, serverTimestamp, updateDoc, increment } from 'firebase/firestore';
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, Float, MeshDistortMaterial, MeshWobbleMaterial, ContactShadows, Text } from '@react-three/drei';
+import * as THREE from 'three';
 
 const MAP_KEYS = [
   process.env.GOOGLE_MAPS_PLATFORM_KEY,
@@ -93,7 +96,7 @@ const VILLAS = [
     price: 1200000, 
     location: "Grand Baie", 
     coords: { lat: -20.0101, lng: 57.5802 },
-    img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1543165737-142f1f0a6d5a?auto=format&fit=crop&q=80&w=2070',
     desc: "A stunning contemporary villa with private beach access and metabolic garden nodes."
   },
   { 
@@ -103,7 +106,7 @@ const VILLAS = [
     price: 850000, 
     location: "Tamarin", 
     coords: { lat: -20.3200, lng: 57.3700 },
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1605307525377-5080c3b0d458?auto=format&fit=crop&q=80&w=2070',
     desc: "Breathtaking mountain views and automated climate control systems."
   },
   { 
@@ -113,7 +116,7 @@ const VILLAS = [
     price: 2100000, 
     location: "Port Louis", 
     coords: { lat: -20.1609, lng: 57.5050 },
-    img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070',
     desc: "Multi-tenant digital office space with high-speed uplink to the Metropolis Mesh."
   },
   { 
@@ -123,7 +126,7 @@ const VILLAS = [
     price: 3400000, 
     location: "Belle Mare", 
     coords: { lat: -20.1900, lng: 57.7700 },
-    img: 'https://images.unsplash.com/photo-1512918766671-ed6a073d7448?auto=format&fit=crop&q=80&w=2070',
+    img: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=2070',
     desc: "The pinnacle of Mauritian luxury, featuring 5 energy-positive suites and a 100m pool."
   }
 ];
@@ -184,12 +187,12 @@ const LiveObservatory = () => {
   const cams = {
     city: {
       title: "Port Louis Civic Node",
-      url: "https://www.youtube.com/embed/SshHw6GfT24?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1",
+      url: "https://www.youtube.com/embed/5-XfTjS7BSc?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=5-XfTjS7BSc",
       stats: { load: "74%", density: "High", security: "Active" }
     },
     beach: {
       title: "Grand Baie Metabolic Coast",
-      url: "https://www.youtube.com/embed/SshHw6GfT24?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1", // Placeholder, usually same channel has multiple
+      url: "https://www.youtube.com/embed/8-z3yM2G_k0?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=8-z3yM2G_k0",
       stats: { load: "12%", density: "Low", security: "Passive" }
     }
   };
@@ -243,10 +246,10 @@ const LiveObservatory = () => {
 
 const MauritiusShowcase = () => {
   const images = [
-    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Sanctuary", type: "Pristine" },
-    { url: "https://images.unsplash.com/photo-1590523741491-345ad024430f", label: "Grand Baie Hub", type: "Commerce" },
-    { url: "https://images.unsplash.com/photo-1580137197581-53696660639d", label: "Ebene Cybercity", type: "Technology" },
-    { url: "https://images.unsplash.com/photo-1544735716-392fe2489ffa", label: "Port Louis Marina", type: "Capital Axis" },
+    { url: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57", label: "Northern Sanctuary", type: "Pristine" },
+    { url: "https://images.unsplash.com/photo-1605307525377-5080c3b0d458", label: "Grand Baie Hub", type: "Commerce" },
+    { url: "https://images.unsplash.com/photo-1544735716-e3ed28230f71", label: "Port Louis Axis", type: "Technology" },
+    { url: "https://images.unsplash.com/photo-1589330273594-fade1ee91647", label: "Le Morne Preserve", type: "Capital Axis" },
   ];
 
   return (
@@ -524,10 +527,111 @@ const Landing = () => (
   </div>
 );
 
+const NFT3DViewer = ({ level, auraColor }: { level: number, auraColor: string }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  return (
+    <Canvas shadows dpr={[1, 2]}>
+      <PerspectiveCamera makeDefault position={[5, 5, 5]} fov={50} />
+      <OrbitControls 
+        enablePan={false} 
+        minDistance={3} 
+        maxDistance={10} 
+        autoRotate 
+        autoRotateSpeed={0.5} 
+      />
+      
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1} castShadow />
+      <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+      
+      <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+        <group position={[0, -1, 0]}>
+          {/* Main Tower Body */}
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[1, level * 0.4 + 1, 1]} />
+            <meshStandardMaterial 
+              color={auraColor || "#C5A059"} 
+              metalness={0.8} 
+              roughness={0.2} 
+              emissive={auraColor || "#C5A059"}
+              emissiveIntensity={0.2}
+            />
+          </mesh>
+
+          {/* Accent Rings */}
+          {Array.from({ length: level }).map((_, i) => (
+            <mesh key={i} position={[0, i * 0.4 - (level * 0.2), 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.7, 0.02, 16, 100]} />
+              <meshStandardMaterial color={auraColor || "#C5A059"} emissive={auraColor || "#C5A059"} emissiveIntensity={0.5} />
+            </mesh>
+          ))}
+
+          {/* Particle System around the building */}
+          <CloudParticles count={20} color={auraColor} />
+        </group>
+      </Float>
+
+      <ContactShadows 
+        position={[0, -2, 0]} 
+        opacity={0.4} 
+        scale={10} 
+        blur={2} 
+        far={4.5} 
+      />
+      
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.01, 0]} receiveShadow>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial color="#050505" />
+      </mesh>
+    </Canvas>
+  );
+};
+
+const CloudParticles = ({ count = 20, color = "#C5A059" }) => {
+  const points = useMemo(() => {
+    const p = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      p[i * 3] = (Math.random() - 0.5) * 4;
+      p[i * 3 + 1] = Math.random() * 4;
+      p[i * 3 + 2] = (Math.random() - 0.5) * 4;
+    }
+    return p;
+  }, [count]);
+
+  const ref = useRef<THREE.Points>(null);
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.rotation.y = state.clock.elapsedTime * 0.1;
+    }
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={count}
+          array={points}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.1} 
+        color={color} 
+        transparent 
+        opacity={0.6} 
+        blending={THREE.AdditiveBlending} 
+      />
+    </points>
+  );
+};
+
 const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: number }) => {
   const [nft, setNft] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isEvolving, setIsEvolving] = useState(false);
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
   useEffect(() => {
     if (!user) return;
@@ -627,6 +731,20 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
             Sky Metropolis <span className="text-gold not-italic font-sans text-xs uppercase tracking-[0.2em] px-3 py-1 border border-gold/30 rounded-sm">Archive 01</span>
           </h3>
         </div>
+        <div className="flex gap-2 p-1 bg-white/5 border border-white/10 h-max mb-2">
+          <button 
+            onClick={() => setViewMode('2d')}
+            className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border transition-all ${viewMode === '2d' ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'bg-transparent text-white/40 border-transparent hover:text-white'}`}
+          >
+            Tactical Feed (2D)
+          </button>
+          <button 
+            onClick={() => setViewMode('3d')}
+            className={`px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border transition-all ${viewMode === '3d' ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'bg-transparent text-white/40 border-transparent hover:text-white'}`}
+          >
+            Holographic Map (3D)
+          </button>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] mb-2 font-bold font-mono">AURA BALANCE</span>
@@ -647,39 +765,114 @@ const Metropolis = ({ user, auraBalance }: { user: User | null, auraBalance: num
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-0 border border-white/10">
         <div className="md:col-span-8 min-h-[600px] bg-[#0A0A0B] relative group overflow-hidden">
-          <div className="absolute inset-0 grayscale opacity-20 group-hover:opacity-40 group-hover:grayscale-0 transition-all duration-1000 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070')] bg-cover bg-center" />
-          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(197, 160, 89, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-          
-          <AnimatePresence>
-            {nft && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              >
-                <div 
-                  className="w-[400px] h-[400px] rounded-full blur-[120px] opacity-10 animate-pulse" 
-                  style={{ backgroundColor: nft.auraColor || '#C5A059' }} 
-                />
-                <motion.div 
-                  animate={{ 
-                    y: [0, -10, 0],
-                  }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative z-10"
-                >
-                  <div className="w-56 h-56 border-2 border-gold/10 flex items-center justify-center bg-black/40 backdrop-blur-3xl shadow-[0_0_100px_rgba(197,160,89,0.05)] transform rotate-45">
-                    <div className="transform -rotate-45">
-                       <Building2 className="w-24 h-24 text-gold/30" />
-                       <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-mono text-gold tracking-widest whitespace-nowrap">
-                         MINT_ID: {nft.id.split('-')[1]?.toUpperCase()} | LVL_{nft.level.toString().padStart(2, '0')}
-                       </div>
+          {viewMode === '2d' ? (
+            <>
+              <div className="absolute inset-0 grayscale opacity-20 group-hover:opacity-40 group-hover:grayscale-0 transition-all duration-1000 bg-[url('https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070')] bg-cover bg-center" />
+              <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(197, 160, 89, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+              
+              <AnimatePresence mode="wait">
+                {nft && (
+                  <motion.div 
+                    key={`${nft.id}-${nft.level}`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.1 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                  >
+                    {/* Dynamic Intense Aura */}
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ 
+                        opacity: [0.1, 0.25, 0.1],
+                        scale: [1, 1.2, 1],
+                      }}
+                      transition={{ 
+                        duration: 4, 
+                        repeat: Infinity, 
+                        ease: "easeInOut" 
+                      }}
+                      className="absolute w-[500px] h-[500px] rounded-full blur-[140px]" 
+                      style={{ backgroundColor: nft.auraColor || '#C5A059' }} 
+                    />
+                    
+                    {/* Evolution Burst Effect */}
+                    <motion.div 
+                      initial={{ opacity: 0.8, scale: 0.5 }}
+                      animate={{ opacity: 0, scale: 2.5 }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="absolute w-64 h-64 border-2 rounded-full z-0"
+                      style={{ borderColor: nft.auraColor || '#C5A059' }}
+                    />
+
+                    <motion.div 
+                      animate={{ 
+                        y: [0, -15, 0],
+                        rotate: [45, 47, 45]
+                      }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                      className="relative z-10"
+                    >
+                      <div className="w-64 h-64 border-2 border-gold/20 flex items-center justify-center bg-black/60 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] transform rotate-45 relative overflow-hidden group/nft">
+                        {/* Inner glowing core */}
+                        <div 
+                          className="absolute inset-0 opacity-20 group-hover/nft:opacity-40 transition-opacity duration-1000"
+                          style={{ background: `radial-gradient(circle at center, ${nft.auraColor || '#C5A059'} 0%, transparent 70%)` }}
+                        />
+                        
+                        <div className="transform -rotate-45 flex flex-col items-center">
+                           <Building2 className="w-24 h-24 text-gold/40 mb-4" />
+                           <div className="flex flex-col items-center gap-1">
+                             <div className="px-2 py-0.5 bg-gold/10 border border-gold/20 text-[8px] font-mono text-gold tracking-[0.3em] uppercase">
+                               Level {nft.level.toString().padStart(2, '0')}
+                             </div>
+                             <div className="text-[9px] font-mono text-white/40 tracking-widest whitespace-nowrap">
+                               MINT_ID: {nft.id.split('-')[1]?.toUpperCase()}
+                             </div>
+                           </div>
+                        </div>
+
+                        {/* Corner accents */}
+                        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-gold/40" />
+                        <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-gold/40" />
+                        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-gold/40" />
+                        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-gold/40" />
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          ) : (
+            <div className="absolute inset-0">
+               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A0A0B] pointer-events-none z-10" />
+               <AnimatePresence mode="wait">
+                  {nft ? (
+                    <motion.div 
+                      key={nft.level}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="w-full h-full"
+                    >
+                       <NFT3DViewer level={nft.level} auraColor={nft.auraColor} />
+                    </motion.div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                       <Cpu className="w-12 h-12 text-white/5 mb-4 animate-pulse" />
+                       <span className="text-[10px] text-white/20 uppercase tracking-[0.4em]">Awaiting Construct Sync...</span>
                     </div>
+                  )}
+               </AnimatePresence>
+               
+               <div className="absolute bottom-8 right-8 z-20 pointer-events-none">
+                  <div className="text-right">
+                     <span className="text-[9px] text-gold font-bold uppercase tracking-[0.3em] block mb-1">Spatial Overlay</span>
+                     <span className="text-xs text-white/40 font-mono italic">Node Hologram Active</span>
                   </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+               </div>
+            </div>
+          )}
 
           <div className="absolute top-8 left-8 flex gap-4">
             <div className="px-3 py-1 bg-black/60 border border-gold/30 text-gold text-[9px] uppercase tracking-widest font-bold">Coord: 20.34° S, 57.55° E</div>
@@ -772,10 +965,10 @@ const Estates = () => {
   const [filter, setFilter] = useState<'all' | 'prospect' | 'acquired'>('all');
   
   const estates = [
-    { id: 'v1', name: "Oasis North Villa", type: "Residential", price: 1200000, adminFee: 60000, fund: 85, location: "Grand Baie", status: "prospect", img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v2', name: "Azure Heights Penthouse", type: "Residential", price: 850000, adminFee: 42500, fund: 100, location: "Tamarin", status: "acquired", img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'c1', name: "Port Louis Commercial Node", type: "Commercial", price: 2100000, adminFee: 105000, fund: 100, location: "Port Louis", status: "acquired", img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070' },
-    { id: 'v3', name: "Emerald Cove Estate", type: "Residential", price: 3400000, adminFee: 170000, fund: 12, location: "Belle Mare", status: "prospect", img: 'https://images.unsplash.com/photo-1512918766671-ed6a073d7448?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v1', name: "Oasis North Villa", type: "Residential", price: 1200000, adminFee: 60000, fund: 85, location: "Grand Baie", status: "prospect", img: 'https://images.unsplash.com/photo-1543165737-142f1f0a6d5a?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v2', name: "Azure Heights Penthouse", type: "Residential", price: 850000, adminFee: 42500, fund: 100, location: "Tamarin", status: "acquired", img: 'https://images.unsplash.com/photo-1605307525377-5080c3b0d458?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'c1', name: "Port Louis Commercial Node", type: "Commercial", price: 2100000, adminFee: 105000, fund: 100, location: "Port Louis", status: "acquired", img: 'https://images.unsplash.com/photo-1544735716-e3ed28230f71?auto=format&fit=crop&q=80&w=2070' },
+    { id: 'v3', name: "Emerald Cove Estate", type: "Residential", price: 3400000, adminFee: 170000, fund: 12, location: "Belle Mare", status: "prospect", img: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=2070' },
   ];
 
   const filtered = estates.filter(e => filter === 'all' || e.status === filter);
